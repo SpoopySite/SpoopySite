@@ -1,6 +1,7 @@
 import logging
 
 import sanic
+import sanic.response
 from sanic import Blueprint
 
 import api.helpers
@@ -28,4 +29,19 @@ async def get_check_website(request):
         return sanic.response.json({"status": "Invalid URL"},
                                    status=400)
 
-    return sanic.response.json({"t": 1})
+    url = search_query
+
+    checks = {
+        url: {
+            "safety": 0
+        }
+    }
+
+    parsed_url = await api.helpers.url_splitter(url)
+    hsts_check = await api.helpers.hsts_check(parsed_url.netloc, request.app.session)
+
+    if not hsts_check["status"] == "preloaded":
+        checks[search_query]["safety"] -= 1
+    checks[search_query]["hsts"] = hsts_check["status"] if hsts_check["status"] == "preloaded" else "NO_HSTS"
+
+    return sanic.response.json({"processed": checks})
