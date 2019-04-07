@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  inse-api:
+    build:
+      context: .
+      dockerfile: ./app/Dockerfile
+    volumes:
+      - ./:/app
+    ports:
+      - 8282:8000
