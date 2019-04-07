@@ -1,7 +1,7 @@
 version: '3'
 
 services:
-  inse-api:
+  spoopy-api:
     build:
       context: .
       dockerfile: ./app/Dockerfile
