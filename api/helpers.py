@@ -1,7 +1,7 @@
 import json
 import aiohttp
 import logging
-from urllib.parse import urlparse
+from urllib.parse import urlparse, ParseResult
 
 import validators.url
 
@@ -37,3 +37,18 @@ async def open_blacklist():
 async def blacklist_check(url: str):
     blacklist = await open_blacklist()
     return url in blacklist["blacklist"]
+
+
+async def parse_phistank(url: str, phishtank_data):
+    url_netloc = await url_splitter(url)
+    url_netloc = url_netloc.netloc
+
+    for phish in phishtank_data:
+        parsed_phish = await url_splitter(phish["url"])
+        netloc = parsed_phish.netloc
+
+        if url_netloc == netloc:
+            log.info("Found")
+            return True
+    return False
+

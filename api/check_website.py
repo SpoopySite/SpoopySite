@@ -45,5 +45,6 @@ async def get_check_website(request):
         checks[url]["safety"] -= 1
     checks[url]["hsts"] = hsts_check["status"] if hsts_check["status"] == "preloaded" else "NO_HSTS"
     checks[url]["blacklist"] = blacklist_check
+    checks[url]["phishtank"] = await api.helpers.parse_phistank(url, request.app.fish)
 
     return sanic.response.json({"processed": checks})

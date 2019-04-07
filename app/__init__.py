@@ -25,8 +25,10 @@ SOFTWARE.
 """
 
 import asyncio
+import json
 import logging
 import os
+import time
 
 import aiohttp
 import sanic
@@ -51,6 +53,47 @@ async def ignore_methods(request, exception):
     return sanic.response.text(f"Method: {request.method}, is not supported for {request.url}", status=405)
 
 
+async def download_phish_test(app):
+    try:
+        with open("api/phishtank.json", "r") as _:
+            pass
+    except FileNotFoundError:
+        log.info("Updating phishtank")
+
+        async with app.session.get("https://data.phishtank.com/data/online-valid.json") as resp:
+            data = await resp.json()
+            text_data = await resp.text()
+            status = resp.status
+
+        if status != 200:
+            log.warning(status)
+            log.warning(text_data)
+        else:
+            with open("api/phishtank.json", "w") as file:
+                json.dump(data, file)
+
+            log.info("Downloaded and parsed phishtank")
+
+    while True:
+        await asyncio.sleep(3780 - time.time() % 3600)
+
+        log.info("Updating phishtank")
+
+        async with app.session.get("https://data.phishtank.com/data/online-valid.json") as resp:
+            data = await resp.json()
+            text_data = await resp.text()
+            status = resp.status
+
+        if status != 200:
+            log.warning(status)
+            log.warning(text_data)
+        else:
+            with open("api/phishtank.json", "w") as file:
+                json.dump(data, file)
+
+            log.info("Downloaded and parsed phishtank")
+
+
 class Server:
     def __init__(self, config, *, loop=None):
         self.app = app = sanic.Sanic(__name__, configure_logging=False)
@@ -59,6 +102,7 @@ class Server:
         self.loop = loop = loop or asyncio.get_event_loop()
 
         self.session = app.session = None
+        self.fish = app.fish = None
 
         app.config['LOGO'] = None
 
@@ -73,11 +117,13 @@ class Server:
         app.register_listener(self.worker_stop, 'after_server_stop')
         app.register_listener(self.worker_init, 'before_server_start')
 
+        app.add_task(download_phish_test)
+
     @classmethod
     def with_config(cls, path='config.yaml', *, loop=None):
         return cls(Config.from_file(path), loop=loop)
 
-    def run(self, host='0.0.0.0', port=8000, debug=False, workers=None, **kwargs):
+    def run(self, host='0.0.0.0', port=8000, debug=True, workers=None, **kwargs):
         """
         Run the App, this calls `sanic.Sanic.run` with the given arguments.
 
@@ -90,6 +136,9 @@ class Server:
 
     async def worker_init(self, app, loop):
         self.session = app.session = aiohttp.ClientSession()
+        with open("api/phishtank.json", "r") as file:
+            phishtank_data = json.load(file)
+        self.fish = app.fish = phishtank_data
 
     async def worker_stop(self, app, loop):
         await self.session.close()
