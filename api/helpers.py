@@ -1,3 +1,4 @@
+import json
 import aiohttp
 import logging
 from urllib.parse import urlparse
@@ -25,3 +26,14 @@ async def hsts_check(url: str, session: aiohttp.client.ClientSession):
         status = resp.status
 
     return json
+
+
+async def open_blacklist():
+    with open("api/blacklist.json", "r") as file:
+        data = json.load(file)
+    return data
+
+
+async def blacklist_check(url: str):
+    blacklist = await open_blacklist()
+    return url in blacklist["blacklist"]

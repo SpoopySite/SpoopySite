@@ -39,9 +39,11 @@ async def get_check_website(request):
 
     parsed_url = await api.helpers.url_splitter(url)
     hsts_check = await api.helpers.hsts_check(parsed_url.netloc, request.app.session)
+    blacklist_check = await api.helpers.blacklist_check(parsed_url.netloc)
 
     if not hsts_check["status"] == "preloaded":
-        checks[search_query]["safety"] -= 1
-    checks[search_query]["hsts"] = hsts_check["status"] if hsts_check["status"] == "preloaded" else "NO_HSTS"
+        checks[url]["safety"] -= 1
+    checks[url]["hsts"] = hsts_check["status"] if hsts_check["status"] == "preloaded" else "NO_HSTS"
+    checks[url]["blacklist"] = blacklist_check
 
     return sanic.response.json({"processed": checks})
