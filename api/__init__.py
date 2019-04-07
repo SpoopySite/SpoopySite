@@ -1,3 +1,6 @@
 from sanic import Blueprint
 
-bp_group = Blueprint.group(url_prefix="/api")
+import api.check_website
+
+bp_group = Blueprint.group(check_website.bp,
+                           url_prefix="/api")
