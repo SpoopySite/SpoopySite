@@ -10,8 +10,7 @@ log = logging.getLogger(__name__)
 
 async def redirect_gatherer(url: str, session: aiohttp.client.ClientSession):
     async with session.get(url) as resp:
-        history = resp.history
-    return history
+        return [str(x.url) for x in resp.history]
 
 
 async def validate_url(url: str):

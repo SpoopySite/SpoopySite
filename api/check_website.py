@@ -46,8 +46,8 @@ async def get_check_website(request):
     checks[url]["hsts"] = hsts_check["status"] if hsts_check["status"] == "preloaded" else "NO_HSTS"
     checks[url]["blacklist"] = blacklist_check
     checks[url]["phishtank"] = await api.helpers.parse_phistank(url, request.app.fish)
-    log.info(await api.helpers.redirect_gatherer(url, request.app.session))
-    # checks[url]["redirects"] = await api.helpers.redirect_gatherer(url, request.app.session)
+    # log.info(await api.helpers.redirect_gatherer(url, request.app.session))
+    checks[url]["redirects"] = await api.helpers.redirect_gatherer(url, request.app.session)
 
     return sanic.response.json({"processed": checks})
 
