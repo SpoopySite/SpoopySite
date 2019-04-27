@@ -8,6 +8,12 @@ import validators.url
 log = logging.getLogger(__name__)
 
 
+async def redirect_gatherer(url: str, session: aiohttp.client.ClientSession):
+    async with session.get(url) as resp:
+        history = resp.history
+    return history
+
+
 async def validate_url(url: str):
     a = validators.url(url)
     if not isinstance(a, validators.ValidationFailure):
