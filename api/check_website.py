@@ -30,24 +30,27 @@ async def get_check_website(request):
                                    status=400)
 
     url = search_query
+    redirects = await api.helpers.redirect_gatherer(url, request.app.session)
 
     checks = {
-        url: {
-            "safety": 0
-        }
+        "urls": {},
+        "redirects": redirects
     }
 
-    parsed_url = await api.helpers.url_splitter(url)
-    hsts_check = await api.helpers.hsts_check(parsed_url.netloc, request.app.session)
-    blacklist_check = await api.helpers.blacklist_check(parsed_url.netloc)
+    for redirect_url in redirects:
+        checks["urls"][redirect_url] = {"safety": 0}
 
-    if not hsts_check["status"] == "preloaded":
-        checks[url]["safety"] -= 1
-    checks[url]["hsts"] = hsts_check["status"] if hsts_check["status"] == "preloaded" else "NO_HSTS"
-    checks[url]["blacklist"] = blacklist_check
-    checks[url]["phishtank"] = await api.helpers.parse_phistank(url, request.app.fish)
+        parsed_url = await api.helpers.url_splitter(url)
+        hsts_check = await api.helpers.hsts_check(parsed_url.netloc, request.app.session)
+        blacklist_check = await api.helpers.blacklist_check(parsed_url.netloc)
+
+        if not hsts_check["status"] == "preloaded":
+            checks["urls"][redirect_url]["safety"] -= 1
+        checks["urls"][redirect_url]["hsts"] = hsts_check["status"] if hsts_check["status"] == "preloaded" else "NO_HSTS"
+        checks["urls"][redirect_url]["blacklist"] = blacklist_check
+        checks["urls"][redirect_url]["phishtank"] = await api.helpers.parse_phistank(url, request.app.fish)
     # log.info(await api.helpers.redirect_gatherer(url, request.app.session))
-    checks[url]["redirects"] = await api.helpers.redirect_gatherer(url, request.app.session)
+    # checks[url]["redirects"] = await api.helpers.redirect_gatherer(url, request.app.session)
 
     return sanic.response.json({"processed": checks})
 
