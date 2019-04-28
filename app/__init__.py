@@ -53,7 +53,7 @@ async def ignore_methods(request, exception):
     return sanic.response.text(f"Method: {request.method}, is not supported for {request.url}", status=405)
 
 
-async def download_phish_test(app):
+async def phish_test(app):
     try:
         with open("api/phishtank.json", "r") as _:
             pass
@@ -73,6 +73,10 @@ async def download_phish_test(app):
                 json.dump(data, file)
 
             log.info("Downloaded and parsed phishtank")
+
+
+async def download_phish_test(app):
+    await phish_test(app)
 
     while True:
         await asyncio.sleep(3780 - time.time() % 3600)
@@ -136,8 +140,13 @@ class Server:
 
     async def worker_init(self, app, loop):
         self.session = app.session = aiohttp.ClientSession()
-        with open("api/phishtank.json", "r") as file:
-            phishtank_data = json.load(file)
+        try:
+            with open("api/phishtank.json", "r") as file:
+                phishtank_data = json.load(file)
+        except FileNotFoundError:
+            await phish_test(app)
+            with open("api/phishtank.json", "r") as file:
+                phishtank_data = json.load(file)
         self.fish = app.fish = phishtank_data
 
     async def worker_stop(self, app, loop):
