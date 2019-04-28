@@ -34,7 +34,6 @@ async def get_check_website(request):
 
     checks = {
         "urls": {},
-        "redirects": redirects
     }
 
     for redirect_url in redirects:
