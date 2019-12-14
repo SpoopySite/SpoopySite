@@ -109,7 +109,7 @@ async def download_phish_test(app):
     await phish_test(app)
 
     while True:
-        await asyncio.sleep(3780 - time.time() % 3600)
+        await asyncio.sleep(86400)
 
         log.info("Updating phishtank")
 
