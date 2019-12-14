@@ -31,6 +31,8 @@ async def get_check_website(request):
 
     url = search_query
     redirects = await api.helpers.redirect_gatherer(url, request.app.session)
+    redirects.append(url)
+    log.info(redirects)
 
     checks = {
         "urls": {},
@@ -40,12 +42,12 @@ async def get_check_website(request):
         checks["urls"][redirect_url] = {"safety": 0}
 
         parsed_url = await api.helpers.url_splitter(url)
-        hsts_check = await api.helpers.hsts_check(parsed_url.netloc, request.app.session)
+        hsts_check = await api.helpers.hsts_check(parsed_url.netloc, request.app.session, request.app.db)
         blacklist_check = await api.helpers.blacklist_check(parsed_url.netloc)
 
-        if not hsts_check["status"] == "preloaded":
+        if not hsts_check == "preloaded":
             checks["urls"][redirect_url]["safety"] -= 1
-        checks["urls"][redirect_url]["hsts"] = hsts_check["status"] if hsts_check["status"] == "preloaded" else "NO_HSTS"
+        checks["urls"][redirect_url]["hsts"] = hsts_check if hsts_check == "preloaded" else "NO_HSTS"
         checks["urls"][redirect_url]["blacklist"] = blacklist_check
         checks["urls"][redirect_url]["phishtank"] = await api.helpers.parse_phistank(url, request.app.fish)
     # log.info(await api.helpers.redirect_gatherer(url, request.app.session))

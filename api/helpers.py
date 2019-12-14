@@ -1,8 +1,10 @@
+import datetime
 import json
-import aiohttp
 import logging
-from urllib.parse import urlparse, ParseResult
+from urllib.parse import urlparse
 
+import aiohttp
+import asyncpg
 import validators.url
 
 log = logging.getLogger(__name__)
@@ -24,13 +26,65 @@ async def url_splitter(url: str):
     return urlparse(url)
 
 
-async def hsts_check(url: str, session: aiohttp.client.ClientSession):
+async def check_hsts(pool: asyncpg.pool.Pool, url: str):
+    async with pool.acquire() as conn:
+        check = await conn.fetchval("""
+        SELECT EXISTS(
+        SELECT 1
+        FROM hsts
+        WHERE url = $1
+        )
+        """, url)
+    return check
+
+
+async def fetch_hsts(pool: asyncpg.pool.Pool, url: str):
+    async with pool.acquire() as conn:
+        value = await conn.fetchval("""
+        SELECT status
+        FROM hsts
+        WHERE url = $1
+        """, url)
+    return value
+
+
+async def fetch_updated_at(pool: asyncpg.pool.Pool, url: str):
+    async with pool.acquire() as conn:
+        value = await conn.fetchval("""
+        SELECT updated_at
+        FROM hsts
+        WHERE url = $1
+        """, url)
+    return value
+
+
+async def insert_hsts(pool: asyncpg.pool.Pool, url: str, status: str):
+    async with pool.acquire() as conn:
+        await conn.execute("""
+        INSERT INTO hsts (url, status)
+        VALUES($1, $2) 
+        """, url, status)
+
+
+async def update_hsts(session: aiohttp.client.ClientSession, url, pool: asyncpg.pool.Pool):
+    log.info("Updating HSTS status for: {}".format(url))
     async with session.get("https://hstspreload.org/api/v2/status",
                            params={"domain": url}) as resp:
-        json = await resp.json()
-        status = resp.status
+        json_data = await resp.json()
+        status = json_data.get("status")
+        await insert_hsts(pool, url, status)
+    return status
 
-    return json
+
+async def hsts_check(url: str, session: aiohttp.client.ClientSession, pool: asyncpg.pool.Pool):
+    if await check_hsts(pool, url):
+        updated_at = await fetch_updated_at(pool, url)
+        if (updated_at + datetime.timedelta(days=7)) > datetime.datetime.now():
+            return await fetch_hsts(pool, url)
+        else:
+            return await update_hsts(session, url, pool)
+    else:
+        return await update_hsts(session, url, pool)
 
 
 async def open_blacklist():
@@ -56,4 +110,3 @@ async def parse_phistank(url: str, phishtank_data):
             log.info("Found")
             return True
     return False
-

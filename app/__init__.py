@@ -31,6 +31,7 @@ import json.decoder
 import logging
 import os
 import time
+from .database import create_pgsql_pool
 import urllib.parse
 
 import aiohttp
@@ -67,6 +68,7 @@ def json_cleaner(data: [dict]):
         data_piece.pop("online")
         data_piece.pop("details")
         data_piece.pop("target")
+        data_piece.pop("verified")
         data_piece["url"] = urllib.parse.urlparse(data_piece["url"]).netloc
         new_data.append(data_piece)
 
@@ -125,6 +127,7 @@ class Server:
 
         self.session = app.session = None
         self.fish = app.fish = None
+        self.db = app.db = None
 
         app.config['LOGO'] = None
 
@@ -158,6 +161,7 @@ class Server:
 
     async def worker_init(self, app, loop):
         self.session = app.session = aiohttp.ClientSession()
+        self.db = self.app.db = await create_pgsql_pool(**self.config.postgres)
         try:
             with open("api/phishtank.json", "r") as file:
                 try:

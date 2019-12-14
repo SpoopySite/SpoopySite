@@ -3,3 +3,4 @@ ruamel.yaml
 sanic>=19.03, <=19.04
 requests
 validators
+asyncpg

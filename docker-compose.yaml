@@ -5,7 +5,18 @@ services:
     build:
       context: .
       dockerfile: ./app/Dockerfile
+    depends_on:
+      - postgres
     volumes:
       - ./:/app
     ports:
       - 8282:8000
+
+  postgres:
+    image: postgres:10-alpine
+    volumes:
+      - postgres:/var/lib/postgresql/data
+      - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql
+
+volumes:
+  postgres:
