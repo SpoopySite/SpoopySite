@@ -25,12 +25,16 @@ SOFTWARE.
 """
 
 import asyncio
+import bz2
 import json
+import json.decoder
 import logging
 import os
 import time
+import urllib.parse
 
 import aiohttp
+import aiohttp.client_exceptions
 import sanic
 import sanic.exceptions
 import sanic.request
@@ -53,26 +57,52 @@ async def ignore_methods(request, exception):
     return sanic.response.text(f"Method: {request.method}, is not supported for {request.url}", status=405)
 
 
+def json_cleaner(data: [dict]):
+    new_data = []
+    for data_piece in data:
+        data_piece: dict
+        data_piece.pop("phish_detail_url")
+        data_piece.pop("submission_time")
+        data_piece.pop("verification_time")
+        data_piece.pop("online")
+        data_piece.pop("details")
+        data_piece.pop("target")
+        data_piece["url"] = urllib.parse.urlparse(data_piece["url"]).netloc
+        new_data.append(data_piece)
+
+    return new_data
+
+
+async def phish_download(app):
+    async with app.session.get(f"https://data.phishtank.com/data/{Config.key}/online-valid.json.bz2",
+                               headers={"User-Agent": "python-aiohttp"}) as resp:
+        log.info(resp.headers)
+        status = resp.status
+        if status != 200:
+            text_data = await resp.text()
+            log.warning(status)
+            try:
+                data = await resp.json()
+                log.warning(data)
+            except aiohttp.client_exceptions.ContentTypeError:
+                log.warning(text_data)
+        else:
+            data = await resp.read()
+            data = bz2.decompress(data)
+            data = json.loads(data)
+            data = json_cleaner(data)
+            with open("api/phishtank.json", "w") as file:
+                json.dump(data, file)
+            log.info("Downloaded and parsed phishtank")
+
+
 async def phish_test(app):
     try:
         with open("api/phishtank.json", "r") as _:
             pass
     except FileNotFoundError:
         log.info("Updating phishtank")
-
-        async with app.session.get("https://data.phishtank.com/data/online-valid.json") as resp:
-            data = await resp.json()
-            text_data = await resp.text()
-            status = resp.status
-
-        if status != 200:
-            log.warning(status)
-            log.warning(text_data)
-        else:
-            with open("api/phishtank.json", "w") as file:
-                json.dump(data, file)
-
-            log.info("Downloaded and parsed phishtank")
+        await phish_download(app)
 
 
 async def download_phish_test(app):
@@ -83,19 +113,7 @@ async def download_phish_test(app):
 
         log.info("Updating phishtank")
 
-        async with app.session.get("https://data.phishtank.com/data/online-valid.json") as resp:
-            data = await resp.json()
-            text_data = await resp.text()
-            status = resp.status
-
-        if status != 200:
-            log.warning(status)
-            log.warning(text_data)
-        else:
-            with open("api/phishtank.json", "w") as file:
-                json.dump(data, file)
-
-            log.info("Downloaded and parsed phishtank")
+        await phish_download(app)
 
 
 class Server:
@@ -142,8 +160,19 @@ class Server:
         self.session = app.session = aiohttp.ClientSession()
         try:
             with open("api/phishtank.json", "r") as file:
-                phishtank_data = json.load(file)
+                try:
+                    phishtank_data = json.load(file)
+                except json.decoder.JSONDecodeError:
+                    log.warning("JSON Decode Error. Rebuilding")
+                    try:
+                        os.remove("api/phishtank.json")
+                    except FileNotFoundError:
+                        pass
+                    await phish_test(app)
+                    with open("api/phishtank.json", "r") as file:
+                        phishtank_data = json.load(file)
         except FileNotFoundError:
+            log.warning("File Not Found. Rebuilding")
             await phish_test(app)
             with open("api/phishtank.json", "r") as file:
                 phishtank_data = json.load(file)
