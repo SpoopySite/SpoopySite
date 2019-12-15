@@ -31,7 +31,8 @@ async def get_check_website(request):
 
     url = search_query
     redirects = await api.helpers.redirect_gatherer(url, request.app.session)
-    redirects.append(url)
+    if len(redirects) == 0:
+        redirects.append(url)
     log.info(redirects)
 
     checks = {
