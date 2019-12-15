@@ -45,6 +45,7 @@ import api
 from .config import Config
 
 log = logging.getLogger(__name__)
+config = Config.from_file()
 
 
 async def ignore_404s(request, exception):
@@ -76,7 +77,7 @@ def json_cleaner(data: [dict]):
 
 
 async def phish_download(app):
-    async with app.session.get(f"https://data.phishtank.com/data/{Config.key}/online-valid.json.bz2",
+    async with app.session.get(f"https://data.phishtank.com/data/{config.key}/online-valid.json.bz2",
                                headers={"User-Agent": "python-aiohttp"}) as resp:
         log.info(resp.headers)
         status = resp.status
