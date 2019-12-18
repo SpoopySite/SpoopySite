@@ -23,7 +23,6 @@ async def get_check_website(url: str, session: aiohttp.client.ClientSession, db:
         resp.close()
 
     log.info(status)
-    log.info(headers)
 
     reasons = []
     safety = True
@@ -54,11 +53,7 @@ async def ws_spoopy(request: sanic.request.Request, ws: websockets.protocol.WebS
 
     url_pool = [url]
     for url in url_pool:
-        await ws.ping()
         status, location, safety, reasons = await get_check_website(url, request.app.session, request.app.db, request.app.fish)
-        await ws.ping()
-        log.info(status)
-        log.info(location)
         await ws.send(json.dumps({"url": url, "safety": safety, "reasons": reasons}))
 
         if status in [300, 301, 302, 303, 307, 308]:
