@@ -8,6 +8,7 @@ import sanic.request
 import sanic.response
 import websockets.protocol
 from sanic import Blueprint
+import urllib.parse
 
 import api.helpers
 
@@ -45,9 +46,10 @@ async def get_check_website(url: str, session: aiohttp.client.ClientSession, db:
     return status, headers.get("location"), safety, reasons
 
 
-@bp.websocket("/ws/<url:path>")
-async def ws_spoopy(request: sanic.request.Request, ws: websockets.protocol.WebSocketCommonProtocol, url):
-    log.info(url + "48")
+@bp.websocket("/ws")
+async def ws_spoopy(request: sanic.request.Request, ws: websockets.protocol.WebSocketCommonProtocol):
+    url = await ws.recv()
+    log.info(url)
 
     url_pool = [url]
     for url in url_pool:
@@ -61,35 +63,5 @@ async def ws_spoopy(request: sanic.request.Request, ws: websockets.protocol.WebS
         if status in [302]:
             url_pool.append(location)
     await ws.send(json.dumps({"end": True}))
-    return
-
-
-@bp.websocket("/ws/http://<url:path>")
-async def ws_spoopy(request: sanic.request.Request, ws: websockets.protocol.WebSocketCommonProtocol, url):
-    log.info(url + "68")
     await ws.close()
-    return
-
-
-@bp.websocket("/ws/https://<url:path>")
-async def ws_spoopy(request: sanic.request.Request, ws: websockets.protocol.WebSocketCommonProtocol, url):
-    log.info(url + "75")
-    await ws.send(json.dumps({"test": "hi3"}))
-
-    url_pool = [url]
-    for url in url_pool:
-        await ws.ping()
-        log.warning("hi")
-        checks, status, location = await get_check_website(url, request.app.session, request.app.db, request.app.fish)
-        await ws.ping()
-        log.info(checks)
-        log.info(type(status))
-        log.info(status)
-        log.info(repr(status))
-        log.info(location)
-        await ws.send("test")
-        await ws.send(checks)
-
-        if status in [302]:
-            url_pool.append(location)
     return

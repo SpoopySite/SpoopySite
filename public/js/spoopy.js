@@ -23,8 +23,11 @@ document.addEventListener("DOMContentLoaded", function () {
     for (const item of res.chain) addResult(item, list, spinner);
     spinner.remove();
   } else {
-    const ws = new WebSocket(`${getWS()}/ws/${suspect}`);
-    ws.onmessage = (event) => {
+    const ws = new WebSocket(`${getWS()}/ws`);
+    ws.onopen = function (event) {
+      ws.send(suspect)
+    };
+    ws.onmessage = function (event) {
       let item;
       try {
         item = JSON.parse(event.data);
@@ -35,7 +38,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
       if (item["end"]) {
         spinner.remove()
-      } else{
+      } else {
         addResult(item, list, spinner);
       }
 
