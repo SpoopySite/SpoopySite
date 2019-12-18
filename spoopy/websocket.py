@@ -61,8 +61,3 @@ async def ws_spoopy(request: sanic.request.Request, ws: websockets.protocol.WebS
     await ws.send(json.dumps({"end": True}))
     await ws.close()
     return
-
-
-@bp.route("/ws")
-async def get_ws(request: sanic.request.Request):
-    return sanic.response.redirect("/")
