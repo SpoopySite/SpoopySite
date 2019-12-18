@@ -20,6 +20,7 @@ async def get_check_website(url: str, session: aiohttp.client.ClientSession, db:
     async with session.get(url, allow_redirects=False) as resp:
         status = resp.status
         headers = resp.headers
+        resp.close()
 
     log.info(status)
     log.info(headers)
@@ -60,7 +61,7 @@ async def ws_spoopy(request: sanic.request.Request, ws: websockets.protocol.WebS
         log.info(location)
         await ws.send(json.dumps({"url": url, "safety": safety, "reasons": reasons}))
 
-        if status in [302]:
+        if status in [300, 301, 302, 303, 307, 308]:
             url_pool.append(location)
     await ws.send(json.dumps({"end": True}))
     await ws.close()
