@@ -31,9 +31,12 @@ import json.decoder
 import logging
 import os
 import time
+from sanic.websocket import WebSocketProtocol
 from .database import create_pgsql_pool
 import urllib.parse
 
+import spoopy.spoopy
+import spoopy.websocket
 import aiohttp
 import aiohttp.client_exceptions
 import sanic
@@ -133,8 +136,13 @@ class Server:
         app.config['LOGO'] = None
 
         app.blueprint(api.bp_group)
-        app.static("/", "./static/index.html")
-        app.static("/", "./static")
+        app.blueprint(spoopy.spoopy.bp)
+        app.blueprint(spoopy.websocket.bp)
+
+        app.static("/", "./public/index.html", content_type="text/html; charset=utf-8")
+        app.static("/css", "./public/css")
+        app.static("/js", "./public/js")
+        app.static("/robots.txt", "./public/robots.txt")
 
         app.error_handler.add(sanic.exceptions.NotFound, ignore_404s)
         app.error_handler.add(sanic.exceptions.MethodNotSupported, ignore_methods)
@@ -158,7 +166,7 @@ class Server:
 
         workers = workers or os.cpu_count() or 1
 
-        self.app.run(host=host, port=port, debug=debug, workers=workers, **kwargs)
+        self.app.run(host=host, port=port, debug=debug, workers=workers, protocol=WebSocketProtocol, **kwargs)
 
     async def worker_init(self, app, loop):
         self.session = app.session = aiohttp.ClientSession()
