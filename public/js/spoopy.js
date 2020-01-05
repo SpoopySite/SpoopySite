@@ -38,6 +38,9 @@ document.addEventListener("DOMContentLoaded", function () {
       }
       if (item["end"]) {
         spinner.remove()
+      } else if (item["error"]) {
+        addError(item, list, spinner);
+        spinner.remove()
       } else {
         addResult(item, list, spinner);
       }
@@ -61,6 +64,14 @@ function addResult(item, list, spinner) {
   reasons.textContent = item.reasons.join(', ');
   li.append(p);
   li.append(reasons);
+  list.insertBefore(li, spinner);
+}
+
+function addError(item, list, spinner) {
+  const li = document.createElement('li');
+  const p = document.createElement('p');
+  p.textContent = item.error;
+  li.append(p);
   list.insertBefore(li, spinner);
 }
 

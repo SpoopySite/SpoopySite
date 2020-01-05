@@ -169,7 +169,7 @@ class Server:
         self.app.run(host=host, port=port, debug=debug, workers=workers, protocol=WebSocketProtocol, **kwargs)
 
     async def worker_init(self, app, loop):
-        self.session = app.session = aiohttp.ClientSession()
+        self.session = app.session = aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=60))
         self.db = self.app.db = await create_pgsql_pool(**self.config.postgres)
         try:
             with open("api/phishtank.json", "r") as file:

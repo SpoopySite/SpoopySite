@@ -2,6 +2,7 @@ import json
 import logging
 
 import aiohttp.client
+import aiohttp.client_exceptions
 import asyncpg.pool
 import sanic
 import sanic.request
@@ -53,7 +54,14 @@ async def ws_spoopy(request: sanic.request.Request, ws: websockets.protocol.WebS
 
     url_pool = [url]
     for url in url_pool:
-        status, location, safety, reasons = await get_check_website(url, request.app.session, request.app.db, request.app.fish)
+        try:
+            status, location, safety, reasons = await get_check_website(url, request.app.session, request.app.db, request.app.fish)
+        except aiohttp.client_exceptions.ClientConnectorError:
+            log.warning(f"Error connecting to {url} on WS")
+            await ws.send(json.dumps({"error": f"Could not establish a connection to {url}"}))
+            await ws.close()
+            return
+
         await ws.send(json.dumps({"url": url, "safety": safety, "reasons": reasons}))
 
         if status in [300, 301, 302, 303, 307, 308]:
