@@ -68,13 +68,33 @@ async def insert_hsts(pool: asyncpg.pool.Pool, url: str, status: str):
         """, url, status)
 
 
+async def update_db_hsts(pool: asyncpg.pool.Pool, url: str, status: str):
+    async with pool.acquire() as conn:
+        await conn.execute("""
+        UPDATE hsts
+        SET status = $1,
+        updated_at = NOW()
+        WHERE url = $2 
+        """, status, url)
+
+
 async def update_hsts(session: aiohttp.client.ClientSession, url, pool: asyncpg.pool.Pool):
-    log.info("Updating HSTS status for: {}".format(url))
+    log.info("Inserting HSTS status for: {}".format(url))
     async with session.get("https://hstspreload.org/api/v2/status",
                            params={"domain": url}) as resp:
         json_data = await resp.json()
         status = json_data.get("status")
         await insert_hsts(pool, url, status)
+    return status
+
+
+async def update_internal_hsts(session: aiohttp.client.ClientSession, url, pool: asyncpg.pool.Pool):
+    log.info("Updating HSTS status for: {}".format(url))
+    async with session.get("https://hstspreload.org/api/v2/status",
+                           params={"domain": url}) as resp:
+        json_data = await resp.json()
+        status = json_data.get("status")
+        await update_db_hsts(pool, url, status)
     return status
 
 
@@ -84,7 +104,7 @@ async def hsts_check(url: str, session: aiohttp.client.ClientSession, pool: asyn
         if (updated_at + datetime.timedelta(days=7)) > datetime.datetime.now():
             return await fetch_hsts(pool, url)
         else:
-            return await update_hsts(session, url, pool)
+            return await update_internal_hsts(session, url, pool)
     else:
         return await update_hsts(session, url, pool)
 
