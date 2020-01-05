@@ -1,3 +1,4 @@
+import aiohttp.client_exceptions
 import logging
 
 import sanic
@@ -30,7 +31,13 @@ async def get_check_website(request):
                                    status=400)
 
     url = search_query
-    redirects = await api.helpers.redirect_gatherer(url, request.app.session)
+
+    try:
+        redirects = await api.helpers.redirect_gatherer(url, request.app.session)
+    except aiohttp.client_exceptions.ClientConnectorError:
+        log.warning(f"Error connecting to {url}")
+        return sanic.response.json({"error": f"Could not establish a connection to {url}"}, status=400)
+
     if len(redirects) == 0:
         redirects.append(url)
     log.info(redirects)
