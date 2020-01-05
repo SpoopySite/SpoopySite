@@ -64,6 +64,8 @@ async def get_check_website(request):
             checks["urls"][redirect_url]["safe"] = False
         elif phishtank_check:
             checks["urls"][redirect_url]["safe"] = False
+        else:
+            checks["urls"][redirect_url]["safe"] = True
 
     # log.info(await api.helpers.redirect_gatherer(url, request.app.session))
     # checks[url]["redirects"] = await api.helpers.redirect_gatherer(url, request.app.session)
