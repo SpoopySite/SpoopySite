@@ -117,7 +117,10 @@ async def open_blacklist():
 
 async def blacklist_check(url: str):
     blacklist = await open_blacklist()
-    return url in blacklist["blacklist"]
+    if url in blacklist["blacklist"]:
+        return blacklist["blacklist"][url]
+    else:
+        return False
 
 
 async def parse_phistank(url: str, phishtank_data):

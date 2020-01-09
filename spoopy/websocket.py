@@ -33,7 +33,7 @@ async def get_check_website(url: str, session: aiohttp.client.ClientSession, db:
     blacklist_check = await api.helpers.blacklist_check(parsed_url.netloc)
     if blacklist_check:
         safety = False
-        reasons.append("Blacklisted")
+        reasons.append(f"Blacklisted: {blacklist_check}")
 
 
     # if url.startswith("https"):
