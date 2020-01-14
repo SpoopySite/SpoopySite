@@ -62,6 +62,11 @@ async def ws_spoopy(request: sanic.request.Request, ws: websockets.protocol.WebS
     url = await ws.recv()
     log.info(url)
 
+    if not await api.helpers.validate_url(url):
+        await ws.send(json.dumps({"error": "Invalid URL"}))
+        await ws.close()
+        return
+
     url_pool = [url]
     for url in url_pool:
         try:
