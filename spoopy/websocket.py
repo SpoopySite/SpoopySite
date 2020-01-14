@@ -35,7 +35,7 @@ async def get_check_website(url: str, session: aiohttp.client.ClientSession, db:
 
     if blacklist_check:
         safety = False
-        reasons.append(f"Blacklisted: {blacklist_check}")
+        reasons.append(f"Blacklisted: {blacklist_check['reason']} by {blacklist_check['source']}")
 
     webrisk_reasons = []
     for key in webrisk_check:

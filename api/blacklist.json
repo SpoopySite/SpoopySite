@@ -1,38 +1,140 @@
 {
   "blacklist": {
-    "grabify.link": "IP Logger",
-    "iplogger.org": "IP Logger",
-    "iplogger.com": "IP Logger",
-    "blasze.com": "IP Logger",
-    "blasze.tk": "IP Logger",
-    "vedbex.com": "Hacking, DDOS, exploit site",
-    "bbcnews.today": "Impersonation",
-    "hackernews.online": "Hacking",
-    "dropboxx.ga": "Impersonation",
-    "deviantartt.ga": "Impersonation",
-    "dropboxx.cf": "Impersonation",
-    "youutube.ga": "Impersonation",
-    "strawpolll.ga": "Impersonation",
-    "twitte.ga": "Impersonation",
-    "piaystation.cf": "Impersonation",
-    "gyazoo.gq": "Impersonation",
-    "imgvr.cf": "Impersonation",
-    "imgvr.ga": "Impersonation",
-    "whatstheirip.com": "IP Logger",
-    "hackfȯrums.net": "Hacking Forum",
-    "hackfȯrums.com": "Hacking Forum",
-    "imgúr.com": "Impersonation",
-    "battlė.net": "Impersonation",
-    "us.battlė.net": "Impersonation",
-    "eu.battlė.net": "Impersonation",
-    "iplogger.ru": "IP Logger",
-    "2no.co": "IP Logger",
-    "yip.su": "IP Logger",
-    "imger.cf": "Impersonation",
-    "youtube.gq": "Impersonation",
-    "media-bo.appspot.com": "Questionable redirect",
-    "ps3cfw.com": "Hacking/Questionable site",
-    "urlz.fr": "Link shortener",
-    "vbooter.org": "Seized site"
+    "grabify.link": {
+      "reason": "IP Logger",
+      "source": "Internal"
+    },
+    "iplogger.org": {
+      "reason": "IP Logger",
+      "source": "Internal"
+    },
+    "iplogger.com": {
+      "reason": "IP Logger",
+      "source": "Internal"
+    },
+    "blasze.com": {
+      "reason": "IP Logger",
+      "source": "Internal"
+    },
+    "blasze.tk": {
+      "reason": "IP Logger",
+      "source": "Internal"
+    },
+    "vedbex.com": {
+      "reason": "Hacking, DDOS, exploit site",
+      "source": "Internal"
+    },
+    "bbcnews.today": {
+      "reason": "Impersonation",
+      "source": "Internal"
+    },
+    "hackernews.online": {
+      "reason": "Hacking",
+      "source": "Internal"
+    },
+    "dropboxx.ga": {
+      "reason": "Impersonation",
+      "source": "Internal"
+    },
+    "deviantartt.ga": {
+      "reason": "Impersonation",
+      "source": "Internal"
+    },
+    "dropboxx.cf": {
+      "reason": "Impersonation",
+      "source": "Internal"
+    },
+    "youutube.ga": {
+      "reason": "Impersonation",
+      "source": "Internal"
+    },
+    "strawpolll.ga": {
+      "reason": "Impersonation",
+      "source": "Internal"
+    },
+    "twitte.ga": {
+      "reason": "Impersonation",
+      "source": "Internal"
+    },
+    "piaystation.cf": {
+      "reason": "Impersonation",
+      "source": "Internal"
+    },
+    "gyazoo.gq": {
+      "reason": "Impersonation",
+      "source": "Internal"
+    },
+    "imgvr.cf": {
+      "reason": "Impersonation",
+      "source": "Internal"
+    },
+    "imgvr.ga": {
+      "reason": "Impersonation",
+      "source": "Internal"
+    },
+    "whatstheirip.com": {
+      "reason": "IP Logger",
+      "source": "Internal"
+    },
+    "hackfȯrums.net": {
+      "reason": "Hacking Forum",
+      "source": "Internal"
+    },
+    "hackfȯrums.com": {
+      "reason": "Hacking Forum",
+      "source": "Internal"
+    },
+    "imgúr.com": {
+      "reason": "Impersonation",
+      "source": "Internal"
+    },
+    "battlė.net": {
+      "reason": "Impersonation",
+      "source": "Internal"
+    },
+    "us.battlė.net": {
+      "reason": "Impersonation",
+      "source": "Internal"
+    },
+    "eu.battlė.net": {
+      "reason": "Impersonation",
+      "source": "Internal"
+    },
+    "iplogger.ru": {
+      "reason": "IP Logger",
+      "source": "Internal"
+    },
+    "2no.co": {
+      "reason": "IP Logger",
+      "source": "Internal"
+    },
+    "yip.su": {
+      "reason": "IP Logger",
+      "source": "Internal"
+    },
+    "imger.cf": {
+      "reason": "Impersonation",
+      "source": "Internal"
+    },
+    "youtube.gq": {
+      "reason": "Impersonation",
+      "source": "Internal"
+    },
+    "media-bo.appspot.com": {
+      "reason": "Questionable Redirect",
+      "source": "Internal"
+    },
+    "ps3cfw.com": {
+      "reason": "Hacking/Questionable Site",
+      "source": "Internal"
+    },
+    "urlz.fr": {
+      "reason": "Link Shortener",
+      "source": "Internal"
+    },
+    "vbooter.org": {
+      "reason": "Seized Site",
+      "source": "Internal"
+    }
   }
 }
