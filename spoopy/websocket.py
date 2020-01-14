@@ -31,10 +31,20 @@ async def get_check_website(url: str, session: aiohttp.client.ClientSession, db:
     parsed_url = await api.helpers.url_splitter(url)
     hsts_check = await api.helpers.hsts_check(parsed_url.netloc, session, db)
     blacklist_check = await api.helpers.blacklist_check(parsed_url.netloc)
+    webrisk_check = await api.helpers.webrisk_check(url, session, db)
+
     if blacklist_check:
         safety = False
         reasons.append(f"Blacklisted: {blacklist_check}")
 
+    webrisk_reasons = []
+    for key in webrisk_check:
+        if webrisk_check.get(key):
+            webrisk_reasons.append(key)
+
+    if webrisk_reasons:
+        safety = False
+        reasons.append(f"WebRisk Flagged: {', '.join(webrisk_reasons)}")
 
     # if url.startswith("https"):
     #     if not hsts_check == "preloaded":

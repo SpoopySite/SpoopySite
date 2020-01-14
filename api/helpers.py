@@ -7,6 +7,9 @@ import aiohttp
 import asyncpg
 import validators.url
 
+from app.config import Config
+
+config = Config.from_file()
 log = logging.getLogger(__name__)
 
 
@@ -135,3 +138,98 @@ async def parse_phistank(url: str, phishtank_data):
             log.info("Found")
             return True
     return False
+
+
+async def check_webrisk_internal(pool: asyncpg.pool.Pool, url: str):
+    async with pool.acquire() as conn:
+        check = await conn.fetchval("""
+        SELECT EXISTS(
+        SELECT 1
+        FROM web_risk
+        WHERE url = $1
+        )
+        """, url)
+    return check
+
+
+async def check_webrisk_expire(pool: asyncpg.pool.Pool, url: str):
+    async with pool.acquire() as conn:
+        check = await conn.fetchval("""
+        SELECT expire_time
+        FROM web_risk
+        WHERE url = $1
+        """, url)
+    return check
+
+
+async def insert_blank_webrisk(pool: asyncpg.pool.Pool, url: str):
+    async with pool.acquire() as conn:
+        await conn.execute("""
+        INSERT INTO web_risk (url, expire_time)
+        VALUES ($1, $2)
+        """, url, datetime.datetime.now() + datetime.timedelta(minutes=20))
+
+
+async def insert_webrisk(pool: asyncpg.pool.Pool, url: str, expire_time: datetime,
+                         social_engineering: bool = False, malware: bool = False):
+    async with pool.acquire() as conn:
+        await conn.execute("""
+        INSERT INTO web_risk (url, social_engineering, malware, expire_time) 
+        VALUES ($1, $2, $3, $4) 
+        """, url, social_engineering, malware, expire_time)
+
+
+async def update_webrisk(url: str, session: aiohttp.client.ClientSession, pool: asyncpg.pool.Pool):
+    log.info(f"Fetching webrisk: {url}")
+
+    params = [
+        ("uri", url),
+        ("key", config.webrisk_key),
+        ("threatTypes", "MALWARE"),
+        ("threatTypes", "SOCIAL_ENGINEERING")
+    ]
+    async with session.get("https://webrisk.googleapis.com/v1beta1/uris:search", params=params) as resp:
+        json_content = await resp.json()
+
+    if json_content == {}:
+        await insert_blank_webrisk(pool, url)
+    else:
+        parsed_time = datetime.datetime.strptime(json_content["threat"]["expireTime"][:-4], "%Y-%m-%dT%H:%M:%S.%f")
+        if json_content["threat"]["threatTypes"] == ["SOCIAL_ENGINEERING"]:
+            await insert_webrisk(pool=pool, url=url, social_engineering=True, expire_time=parsed_time)
+        elif json_content["threat"]["threatTypes"] == ["MALWARE"]:
+            await insert_webrisk(pool=pool, url=url, malware=True, expire_time=parsed_time)
+        else:
+            await insert_webrisk(pool=pool, url=url, social_engineering=True, malware=True, expire_time=parsed_time)
+
+
+async def fetch_webrisk(pool: asyncpg.pool.Pool, url: str):
+    async with pool.acquire() as conn:
+        data = await conn.fetch("""
+        SELECT social_engineering, malware
+        FROM web_risk
+        WHERE url = $1
+        """, url)
+    return dict(data[0])
+
+
+async def delete_webrisk(pool: asyncpg.pool.Pool, url: str):
+    async with pool.acquire() as conn:
+        await conn.execute("""
+        DELETE FROM web_risk
+        WHERE url = $1
+        """, url)
+
+
+async def webrisk_check(url: str, session: aiohttp.client.ClientSession, pool: asyncpg.pool.Pool):
+    if await check_webrisk_internal(pool, url):
+        expire_time = await check_webrisk_expire(pool, url)
+        if expire_time < datetime.datetime.now():
+            await delete_webrisk(pool, url)
+            await update_webrisk(url, session, pool)
+            return await fetch_webrisk(pool, url)
+        else:
+            return await fetch_webrisk(pool, url)
+    else:
+        await update_webrisk(url, session, pool)
+        return await fetch_webrisk(pool, url)
