@@ -33,7 +33,7 @@ class Spoopy extends Component {
         item = JSON.parse(event.data);
       } catch (err) {
         console.error(err.stack);
-        this.safe.innerHTML = err.message;
+        this.setState({error});
         return;
       }
       if (item["end"]) {
@@ -41,17 +41,9 @@ class Spoopy extends Component {
       } else if (item["error"]) {
         this.state.spoopy_list.push(item);
         this.setState({finished: true});
-        // Spoopy.addError(item, this.list, this.spinner);
       } else {
         this.state.spoopy_list.push(item);
         this.setState({finished: false});
-        // Spoopy.addResult(item, this.list, this.spinner);
-      }
-
-      if (item.chain) {
-        this.safe.textContent = item.safe ? 'Safe' : 'Unsafe';
-        this.heading.textContent = item.chain[0].url;
-        this.setState({finished: true});
       }
     }
   }
@@ -66,28 +58,32 @@ class Spoopy extends Component {
   }
 
   render() {
-    const {spoopy_list, finished} = this.state;
+    const {spoopy_list, finished, error} = this.state;
 
-    return (
-      <div className="wrapper">
-        <h1 id="header">{decodeURIComponent(this.props.match.params.suspect_url)}</h1>
-        <div id="results">
-          <h2>{finished ? null : "Checking if Safe"}</h2>
-          <ol>
-            <>
-              {spoopy_list.map(item => (
-                <SpoopyMessage data={item}/>
-              ))}
-            </>
-            {finished ? null :
-              <div className="spinner">
-                <div className="cube1"></div>
-                <div className="cube2"></div>
-              </div>}
-          </ol>
+    if (error) {
+      return <div className="status error">{error.message}</div>
+    } else {
+      return (
+        <div className="wrapper">
+          <h1 id="header">{decodeURIComponent(this.props.match.params.suspect_url)}</h1>
+          <div id="results">
+            <h2>{finished ? null : "Checking if Safe"}</h2>
+            <ol>
+              <>
+                {spoopy_list.map(item => (
+                  <SpoopyMessage data={item}/>
+                ))}
+              </>
+              {finished ? null :
+                <div className="spinner">
+                  <div className="cube1"></div>
+                  <div className="cube2"></div>
+                </div>}
+            </ol>
+          </div>
         </div>
-      </div>
-    );
+      )
+    }
   }
 }
 
