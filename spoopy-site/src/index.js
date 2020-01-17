@@ -1,8 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Homepage from "./homepage/Homepage"
+import App from "./app";
 
 ReactDOM.render(
-  <Homepage/>,
+  <App/>,
   document.getElementById("root")
 );
