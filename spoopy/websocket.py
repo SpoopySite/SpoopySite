@@ -4,7 +4,6 @@ import logging
 import aiohttp.client
 import aiohttp.client_exceptions
 import asyncpg.pool
-import sanic
 import sanic.request
 import sanic.response
 import websockets.protocol
@@ -80,7 +79,11 @@ async def ws_spoopy(request: sanic.request.Request, ws: websockets.protocol.WebS
         await ws.send(json.dumps({"url": url, "safety": safety, "reasons": reasons}))
 
         if status in [300, 301, 302, 303, 307, 308]:
-            url_pool.append(location)
+            if location.startswith("/"):
+                parsed = urllib.parse.urlparse(url)
+                url_pool.append(f"{parsed.scheme}://{parsed.netloc}/{location}")
+            else:
+                url_pool.append(location)
     await ws.send(json.dumps({"end": True}))
     await ws.close()
     return
