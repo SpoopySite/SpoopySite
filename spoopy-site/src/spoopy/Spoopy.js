@@ -29,7 +29,7 @@ class Spoopy extends Component {
         item = JSON.parse(event.data);
       } catch (err) {
         console.error(err.stack);
-        this.setState({error});
+        this.setState({err});
         return;
       }
       if (item["end"]) {
