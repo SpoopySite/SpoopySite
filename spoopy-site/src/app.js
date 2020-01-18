@@ -8,7 +8,7 @@ function App() {
     <main>
       <Router>
         <Switch>
-          <Route path={"/spoopy/:suspect_url"} children={<Spoopy/>}/>
+          <Route path={"/spoopy-site/:suspect_url"} children={<Spoopy/>}/>
           <Route exact-path="/" children={<Homepage/>}/>
         </Switch>
       </Router>
