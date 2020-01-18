@@ -6,15 +6,10 @@ class Spoopy extends Component {
   constructor(props) {
     super(props);
 
-    this.safe = document.querySelector('#results h2');
-    this.list = document.querySelector('#results ol');
-    this.heading = document.getElementById('header');
-    this.spinner = document.querySelector('.spinner');
-
     this.state = {spoopy_list: []};
   }
 
-   static getWebSocket() {
+  static getWebSocket() {
     const l = window.location;
     const protocol = l.protocol.endsWith('s:') ? 'wss' : 'ws';
     return `${protocol}://${l.host}`;
@@ -51,9 +46,9 @@ class Spoopy extends Component {
   async componentDidMount() {
     try {
       const data = await this.getData();
-      this.setState({ data });
+      this.setState({data});
     } catch (error) {
-      this.setState({ error });
+      this.setState({error});
     }
   }
 

@@ -4,7 +4,6 @@ import "./Spoopy-Message.css";
 class SpoopyMessage extends Component {
   render() {
     const {url, safety, reasons, error} = this.props.data;
-    console.log(this.props.data)
 
     if (error) {
       return (
