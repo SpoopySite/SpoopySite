@@ -1,6 +1,7 @@
 import React, {Component} from "react";
 import {withRouter} from "react-router-dom";
 import SpoopyMessage from "../spoopy-message/Spoopy-Message";
+import Spinner from "../spinner/Spinner";
 
 class Spoopy extends Component {
   constructor(props) {
@@ -70,10 +71,7 @@ class Spoopy extends Component {
                 ))}
               </>
               {finished ? null :
-                <div className="spinner">
-                  <div className="cube1"></div>
-                  <div className="cube2"></div>
-                </div>}
+                <Spinner/>}
             </ol>
           </div>
         </div>
