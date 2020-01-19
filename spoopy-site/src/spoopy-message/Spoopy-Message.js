@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import "./Spoopy-Message.css";
 
 class SpoopyMessage extends Component {
   render() {
