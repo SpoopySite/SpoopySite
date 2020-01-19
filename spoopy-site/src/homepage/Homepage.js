@@ -10,22 +10,19 @@ class Homepage extends Component {
       switchPage: false,
       spoopy_url: null
     };
-
-    this.goToSpoopy = this.goToSpoopy.bind(this);
-    this.handleChange = this.handleChange.bind(this);
   }
 
-  goToSpoopy(event) {
+  goToSpoopy = (event) => {
     const keyCode = event.keyCode || event.which;
     if (event.type === "click" || keyCode === 13) {
       this.setState({ switchPage: true });
       // window.location.pathname += "site/" + encodeURIComponent(document.getElementById("input").value);
     }
-  }
+  };
 
-  handleChange(event) {
+  handleChange = (event) => {
     this.setState({ spoopy_url: event.target.value });
-  }
+  };
 
   render() {
     if (this.state.switchPage) {
