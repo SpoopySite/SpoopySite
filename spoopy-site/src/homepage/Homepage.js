@@ -9,6 +9,8 @@ class Homepage extends Component {
     this.state = {
       switchPage: false
     };
+
+    this.goToSpoopy = this.goToSpoopy.bind(this)
   }
 
   goToSpoopy(event) {
@@ -16,7 +18,7 @@ class Homepage extends Component {
     if (event.type === "click" || keyCode === 13) {
       console.log(true);
       console.log(this);
-      this.setState({switchState: true})
+      this.setState({switchPage: true})
       // window.location.pathname += "site/" + encodeURIComponent(document.getElementById("input").value);
     }
   }
@@ -24,7 +26,7 @@ class Homepage extends Component {
   render() {
     if (this.state.switchPage) {
     return (
-      <Redirect to="/site/test"/>
+      <Redirect to="/site/"/>
     );
   } else {
     return (
