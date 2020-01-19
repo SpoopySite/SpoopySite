@@ -1,0 +1,29 @@
+body {
+    font-family: "Port Lligat Slab", sans-serif;
+}
+
+.wrapper > * {
+    text-align: center
+}
+
+.wrapper {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+#input {
+    outline: none;
+    font-family: "Port Lligat Slab", sans-serif;
+}
+
+.footer {
+    position: fixed;
+    bottom: 0.5em;
+    left: 1em;
+}
+
+.slack-index {
+    text-align: center;
+}

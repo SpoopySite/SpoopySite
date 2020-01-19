@@ -144,6 +144,9 @@ class Server:
         app.static("/js", "./public/js")
         app.static("/robots.txt", "./public/robots.txt")
 
+        app.static("/spoopy-site", "./spoopy-site/build/index.html")
+        app.static("/spoopy-site/static", "./spoopy-site/build/static")
+
         app.error_handler.add(sanic.exceptions.NotFound, ignore_404s)
         app.error_handler.add(sanic.exceptions.MethodNotSupported, ignore_methods)
 
