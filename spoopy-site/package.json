@@ -2,7 +2,6 @@
   "name": "spoopy-site",
   "version": "0.1.0",
   "private": true,
-  "homepage": "http://localhost:8282/spoopy-site",
   "dependencies": {
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.4.0",

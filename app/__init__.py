@@ -139,14 +139,10 @@ class Server:
         app.blueprint(spoopy.spoopy.bp)
         app.blueprint(spoopy.websocket.bp)
 
-        app.static("/", "./public/index.html", content_type="text/html; charset=utf-8")
-        app.static("/css", "./public/css")
-        app.static("/js", "./public/js")
-        app.static("/robots.txt", "./public/robots.txt")
-
-        app.static("/spoopy-site", "./spoopy-site/build/index.html")
-        app.static("/spoopy-site/static", "./spoopy-site/build/static")
-        app.static("/spoopy-site/site", "./spoopy-site/build/index.html")
+        app.static("/", "./spoopy-site/build/index.html")
+        app.static("/static", "./spoopy-site/build/static")
+        app.static("/site", "./spoopy-site/build/index.html")
+        app.static("/robots.txt", "./spoopy-site/robots.txt")
 
         app.error_handler.add(sanic.exceptions.NotFound, ignore_404s)
         app.error_handler.add(sanic.exceptions.MethodNotSupported, ignore_methods)
