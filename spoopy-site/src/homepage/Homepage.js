@@ -8,7 +8,7 @@ class Homepage extends Component {
 
     this.state = {
       switchPage: false,
-      spoopy_url: null
+      spoopy_url: ""
     };
   }
 
@@ -16,7 +16,6 @@ class Homepage extends Component {
     const keyCode = event.keyCode || event.which;
     if (event.type === "click" || keyCode === 13) {
       this.setState({ switchPage: true });
-      // window.location.pathname += "site/" + encodeURIComponent(document.getElementById("input").value);
     }
   };
 
