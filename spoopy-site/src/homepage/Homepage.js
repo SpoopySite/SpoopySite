@@ -1,11 +1,11 @@
-import React from 'react';
+import React from "react";
 import "./Homepage.css";
 
 function Homepage() {
   function goToSpoopy(event) {
     const keyCode = event.keyCode || event.which;
     if (event.type === "click" || keyCode === 13) {
-      window.location.pathname = "spoopy-site/" + encodeURIComponent(document.getElementById('input').value);
+      window.location.pathname = "spoopy-site/" + encodeURIComponent(document.getElementById("input").value);
     }
   }
 

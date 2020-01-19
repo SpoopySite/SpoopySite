@@ -1,7 +1,7 @@
 import React from "react";
-import {BrowserRouter as Router, Route, Switch} from "react-router-dom";
-import Homepage from "./homepage/Homepage"
-import Spoopy from "./spoopy/Spoopy"
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import Homepage from "./homepage/Homepage";
+import Spoopy from "./spoopy/Spoopy";
 
 function App() {
   return (

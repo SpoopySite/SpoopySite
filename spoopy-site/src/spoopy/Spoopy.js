@@ -1,5 +1,5 @@
-import React, {Component} from "react";
-import {withRouter} from "react-router-dom";
+import React, { Component } from "react";
+import { withRouter } from "react-router-dom";
 import SpoopyMessage from "../spoopy-message/Spoopy-Message";
 import Spinner from "../spinner/Spinner";
 
@@ -7,12 +7,12 @@ class Spoopy extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {spoopy_list: []};
+    this.state = { spoopy_list: [] };
   }
 
   static getWebSocket() {
     const l = window.location;
-    const protocol = l.protocol.endsWith('s:') ? 'wss' : 'ws';
+    const protocol = l.protocol.endsWith("s:") ? "wss" : "ws";
     return `${protocol}://${l.host}`;
   }
 
@@ -20,8 +20,8 @@ class Spoopy extends Component {
     const suspect_url = decodeURIComponent(this.props.match.params.suspect_url);
     const ws = new WebSocket(`${Spoopy.getWebSocket()}/ws`);
 
-    ws.onopen = function (event) {
-      ws.send(suspect_url)
+    ws.onopen = function(event) {
+      ws.send(suspect_url);
     };
     ws.onmessage = (event) => {
       let item;
@@ -29,35 +29,35 @@ class Spoopy extends Component {
         item = JSON.parse(event.data);
       } catch (err) {
         console.error(err.stack);
-        this.setState({err});
+        this.setState({ err });
         return;
       }
       if (item["end"]) {
-        this.setState({finished: true});
+        this.setState({ finished: true });
       } else if (item["error"]) {
         this.state.spoopy_list.push(item);
-        this.setState({finished: true});
+        this.setState({ finished: true });
       } else {
         this.state.spoopy_list.push(item);
-        this.setState({finished: false});
+        this.setState({ finished: false });
       }
-    }
+    };
   }
 
   async componentDidMount() {
     try {
       const data = await this.getData();
-      this.setState({data});
+      this.setState({ data });
     } catch (error) {
-      this.setState({error});
+      this.setState({ error });
     }
   }
 
   render() {
-    const {spoopy_list, finished, error} = this.state;
+    const { spoopy_list, finished, error } = this.state;
 
     if (error) {
-      return <div className="status error">{error.message}</div>
+      return <div className="status error">{error.message}</div>;
     } else {
       return (
         <div className="wrapper">
@@ -75,7 +75,7 @@ class Spoopy extends Component {
             </ol>
           </div>
         </div>
-      )
+      );
     }
   }
 }
