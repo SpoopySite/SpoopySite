@@ -30,7 +30,7 @@ class Homepage extends Component {
   render() {
     if (this.state.switchPage) {
       return (
-        <Redirect to={"/site/" + encodeURIComponent(this.state.spoopy_url)}/>
+        <Redirect push to={"/site/" + encodeURIComponent(this.state.spoopy_url)}/>
       );
     } else {
       return (
