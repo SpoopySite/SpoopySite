@@ -1,20 +1,28 @@
-import React from "react";
+import React, { Component } from "react";
 import { Redirect } from "react-router-dom";
 import "./Homepage.css";
 
-function Homepage() {
-  let switchPage = false;
+class Homepage extends Component {
+  constructor(props) {
+    super(props);
 
-  function goToSpoopy(event) {
+    this.state = {
+      switchPage: false
+    };
+  }
+
+  goToSpoopy(event) {
     const keyCode = event.keyCode || event.which;
     if (event.type === "click" || keyCode === 13) {
       console.log(true);
-      switchPage = true;
+      console.log(this);
+      this.setState({switchState: true})
       // window.location.pathname += "site/" + encodeURIComponent(document.getElementById("input").value);
     }
   }
 
-  if (switchPage) {
+  render() {
+    if (this.state.switchPage) {
     return (
       <Redirect to="/site/test"/>
     );
@@ -25,14 +33,13 @@ function Homepage() {
         <h3>Checks how risky a website is by checking for IP Logging, Phishing, Malware and more.</h3>
         <div>
           <label htmlFor="input">Check a link:</label>
-          <input id="input" type="text" onKeyUp={goToSpoopy}/>
-          <button id="go" onClick={goToSpoopy} onKeyUp={goToSpoopy}>Go</button>
+          <input id="input" type="text" onKeyUp={this.goToSpoopy}/>
+          <button id="go" onClick={this.goToSpoopy} onKeyUp={this.goToSpoopy}>Go</button>
         </div>
       </div>
     );
   }
-
-
+  }
 }
 
 export default Homepage;
