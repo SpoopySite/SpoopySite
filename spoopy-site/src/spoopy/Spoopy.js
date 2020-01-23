@@ -68,7 +68,7 @@ class Spoopy extends Component {
             <ol>
               <>
                 {spoopy_list.map(item => (
-                  <SpoopyMessage data={item}/>
+                  <SpoopyMessage data={item} key={item.url}/>
                 ))}
               </>
               {finished ? null :
