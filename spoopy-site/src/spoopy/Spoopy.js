@@ -18,7 +18,8 @@ class Spoopy extends Component {
 
   async getData() {
     const suspect_url = decodeURIComponent(this.props.match.params.suspect_url);
-    const ws = new WebSocket(`${Spoopy.getWebSocket()}/ws`);
+    // const ws = new WebSocket(`${Spoopy.getWebSocket()}/ws`);
+    const ws = new WebSocket("ws://localhost:8282/ws");
 
     ws.onopen = function(event) {
       ws.send(suspect_url);
@@ -60,7 +61,7 @@ class Spoopy extends Component {
       return <div className="status error">{error.message}</div>;
     } else {
       return (
-        <div className="wrapper">
+        <div className="spoopy-wrapper">
           <h1 id="header">{decodeURIComponent(this.props.match.params.suspect_url)}</h1>
           <div id="results">
             <h2>{finished ? null : "Checking if Safe"}</h2>
