@@ -60,3 +60,7 @@ label, input, button {
 .slack-index {
     text-align: center;
 }
+
+button {
+    margin-left: 0.5em;
+}
