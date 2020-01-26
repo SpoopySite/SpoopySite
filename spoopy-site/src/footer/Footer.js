@@ -8,7 +8,7 @@ class Footer extends Component {
         <div className="footer-copyright">
           <div className="container center-align">
             <p>Inspired by <a href="https://github.com/spoopy-link/server">spoopy</a>. Source at <a
-              href="https://github.com/Lagicrus/spoopy">Github</a></p>
+              href="https://github.com/Lagicrus/spoopy-python">Github</a></p>
             <p className="subFooter">Docs can be found <a href="/docs">here</a>. Homepage
             located <a href="/">here</a></p>
           </div>
