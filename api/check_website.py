@@ -32,6 +32,9 @@ async def get_check_website(request):
 
     url = search_query
 
+    if "spoopy.oceanlord.me" in url:
+        return sanic.response.json({"error": "Go away."})
+
     try:
         redirects = await api.helpers.redirect_gatherer(url, request.app.session)
     except aiohttp.client_exceptions.ClientConnectorError:

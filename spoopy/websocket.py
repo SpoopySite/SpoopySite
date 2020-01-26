@@ -68,6 +68,10 @@ async def ws_spoopy(request: sanic.request.Request, ws: websockets.protocol.WebS
 
     url_pool = [url]
     for url in url_pool:
+        if "spoopy.oceanlord.me" in url:
+            await ws.send(json.dumps({"error": "No."}))
+            await ws.close()
+
         try:
             status, location, safety, reasons = await get_check_website(url, request.app.session, request.app.db, request.app.fish)
         except aiohttp.client_exceptions.ClientConnectorError:

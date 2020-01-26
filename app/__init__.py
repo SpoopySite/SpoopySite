@@ -53,7 +53,9 @@ config = Config.from_file()
 
 async def ignore_404s(request, exception):
     log.warning(f"File/URL not found: {request.url}")
-    if request.path.startswith("/site/http"):
+    if request.path.count("/site/http") > 1:
+        return sanic.response.text(f"404. `{request.url}` not found.", status=404)
+    elif request.path.startswith("/site/http"):
         return await sanic.response.file("./spoopy-site/build/index.html")
     else:
         return sanic.response.text(f"404. `{request.url}` not found.", status=404)
