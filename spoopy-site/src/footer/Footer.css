@@ -1,24 +1,25 @@
-.page-footer {
+footer {
     bottom: 0;
     position: fixed;
     width: 100%;
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+    border-top: 3px solid lightslategray;
     font-size: 20px;
     text-align: center;
+    background-color: white;
 }
 
-.footer-copyright div p {
+footer p {
     padding: 0;
     margin: 0;
 }
 
-.footer-copyright {
-    background-color: white;
-    border-top-width: 3px;
-    border-top-style: solid;
-    border-color: lightslategray;
+footer a {
+    display: inline-block;
+    padding: 2px;
 }
 
-.container {
-    margin-top: 0.5em;
-    margin-bottom: 0.5em;
+.inspiration {
+    font-size: 15px;
 }
