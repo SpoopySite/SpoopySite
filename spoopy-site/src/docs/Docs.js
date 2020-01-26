@@ -26,7 +26,7 @@ class Docs extends Component {
     return (
       <div className="docs">
         <h2>API</h2>
-        <p>Send a <b>GET</b> request to <b>/check_website</b></p>
+        <p>Send a <b>GET</b> request to <b>/api/check_website</b></p>
         <p>The URL you are checking either needs to be sent in the JSON body
           under the <b>website</b> key.</p>
         <p>Or, it needs to be as a query parameter under the value <b>website</b></p>
