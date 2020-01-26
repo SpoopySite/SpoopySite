@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { withRouter } from "react-router-dom";
 import SpoopyMessage from "../spoopy-message/Spoopy-Message";
 import Spinner from "../spinner/Spinner";
+import "./Spoopy.css";
 
 class Spoopy extends Component {
   constructor(props) {

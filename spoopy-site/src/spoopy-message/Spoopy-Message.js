@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import "./Spoopy-Message.css";
 
 class SpoopyMessage extends Component {
   render() {
@@ -12,7 +13,7 @@ class SpoopyMessage extends Component {
       );
     } else {
       return (
-        <li>
+        <li className="results">
           <p>{url} {safety ? "\u2714" : "\u274c"}</p>
           <p>{reasons.join(", ")}</p>
         </li>

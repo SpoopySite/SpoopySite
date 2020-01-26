@@ -17,6 +17,7 @@ body {
 
 h1 {
     font-size: 3em;
+    overflow-wrap: break-word;
 }
 
 h3 {
@@ -44,6 +45,7 @@ label, input, button {
     left: 50%;
     transform: translate(-50%, -50%);
     text-align: center;
+    max-width: 100%;
 }
 
 #input {
