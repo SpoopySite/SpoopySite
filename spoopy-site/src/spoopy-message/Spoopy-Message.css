@@ -3,7 +3,7 @@
     overflow-wrap: break-word;
 }
 
-.results {
+.error-results {
     font-size: 1.5em;
     overflow-wrap: break-word;
     color: red;
