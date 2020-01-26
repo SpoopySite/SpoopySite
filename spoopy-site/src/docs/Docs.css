@@ -1,0 +1,7 @@
+.docs {
+    padding-left: 2em;
+}
+
+#example_json > * {
+    white-space: pre;
+}
