@@ -7,7 +7,7 @@ class SpoopyMessage extends Component {
 
     if (error) {
       return (
-        <li>
+        <li className="error-results">
           <p>{error}</p>
         </li>
       );
