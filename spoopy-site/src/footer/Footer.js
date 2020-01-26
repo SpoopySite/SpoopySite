@@ -6,7 +6,7 @@ class Footer extends Component {
     return (
       <footer className="page-footer">
         <div className="footer-copyright">
-          <div className="container center-align">
+          <div className="container">
             <p>Inspired by <a href="https://github.com/spoopy-link/server">spoopy</a>. Source at <a
               href="https://github.com/Lagicrus/spoopy-python">Github</a></p>
             <p className="subFooter">Docs can be found <a href="/docs">here</a>. Homepage

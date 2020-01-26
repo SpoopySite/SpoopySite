@@ -17,3 +17,8 @@
     border-top-style: solid;
     border-color: lightslategray;
 }
+
+.container {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+}
