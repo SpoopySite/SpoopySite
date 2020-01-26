@@ -46,6 +46,7 @@ label, input, button {
     transform: translate(-50%, -50%);
     text-align: center;
     max-width: 100%;
+    margin-bottom: 5em;
 }
 
 #input {
