@@ -1,4 +1,8 @@
 .faq {
-    padding-left: 2em;
     margin-bottom: 5em;
+    max-width: 90%;
+}
+
+.faq > * {
+    overflow-wrap: break-word;
 }
