@@ -17,7 +17,7 @@ class SpoopyMessage extends Component {
         <li className="results">
           <p>{url} {safety ? "\u2714" : "\u274c"}</p>
           <p>{reasons.join(", ")}</p>
-          <p>This link was guess from Youtube. Can read more <Link to="/faq#Youtube">here</Link></p>
+          <p>This link was a guess. Can read more <Link to="/faq#Youtube">here</Link></p>
         </li>
       )
     } else {
