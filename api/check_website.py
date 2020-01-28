@@ -4,6 +4,7 @@ import logging
 import sanic
 import sanic.response
 from sanic import Blueprint
+import urllib.parse
 
 import api.helpers
 
@@ -48,6 +49,11 @@ async def get_check_website(request):
     checks = {
         "urls": {},
     }
+
+    parsed_url = urllib.parse.urlparse(redirects[-1])
+    if parsed_url.netloc in ["www.youtube.com", "youtube.com"] and parsed_url.path == "/redirect":
+        if "q" in urllib.parse.parse_qs(parsed_url.query):
+            redirects.append(urllib.parse.parse_qs(parsed_url.query)["q"][0])
 
     for redirect_url in redirects:
         checks["urls"][redirect_url] = {"safety": 0}

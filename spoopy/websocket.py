@@ -67,7 +67,11 @@ async def ws_spoopy(request: sanic.request.Request, ws: websockets.protocol.WebS
         return
 
     url_pool = [url]
+    youtube_check = False
+
     for url in url_pool:
+        parsed = urllib.parse.urlparse(url)
+
         if "spoopy.oceanlord.me" in url:
             await ws.send(json.dumps({"error": "No."}))
             await ws.close()
@@ -80,14 +84,19 @@ async def ws_spoopy(request: sanic.request.Request, ws: websockets.protocol.WebS
             await ws.close()
             return
 
-        await ws.send(json.dumps({"url": url, "safety": safety, "reasons": reasons}))
-
+        if youtube_check:
+            await ws.send(json.dumps({"url": url, "safety": safety, "reasons": reasons, "youtube": True}))
+        else:
+            await ws.send(json.dumps({"url": url, "safety": safety, "reasons": reasons}))
         if status in [300, 301, 302, 303, 307, 308]:
             if location.startswith("/"):
-                parsed = urllib.parse.urlparse(url)
                 url_pool.append(f"{parsed.scheme}://{parsed.netloc}/{location}")
             else:
                 url_pool.append(location)
+        elif parsed.netloc in ["www.youtube.com", "youtube.com"] and parsed.path == "/redirect":
+            if "q" in urllib.parse.parse_qs(parsed.query):
+                url_pool.append(urllib.parse.parse_qs(parsed.query)["q"][0])
+                youtube_check = True
     await ws.send(json.dumps({"end": True}))
     await ws.close()
     return
