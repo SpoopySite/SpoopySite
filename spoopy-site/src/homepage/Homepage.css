@@ -10,7 +10,7 @@
     }
 }
 
-@media only screen and (min-height: 500px){
+@media only screen and (min-height: 500px) {
     .spoopy-wrapper {
         position: absolute;
         top: 50%;
