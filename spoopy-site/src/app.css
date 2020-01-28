@@ -1,0 +1,31 @@
+html {
+    --primaryBackground: #ffffff;
+    --primaryTextColor: #000000;
+    --primaryHyperlinkColor: -webkit-link
+}
+
+html[data-theme="dark"] {
+    --primaryBackground: #1a1a1d;
+    --primaryTextColor: #ffffff;
+    --primaryHyperlinkColor: #234099;
+}
+
+p, code, h1, h2, h3, span, label, ol {
+    color: var(--primaryTextColor)
+}
+
+a {
+    color: var(--primaryHyperlinkColor)
+}
+
+body, footer {
+    background-color: var(--primaryBackground)
+}
+
+html.theme-transition,
+html.theme-transition *,
+html.theme-transition *:before,
+html.theme-transition *:after {
+    transition: all 750ms !important;
+    transition-delay: 0ms !important;
+}
