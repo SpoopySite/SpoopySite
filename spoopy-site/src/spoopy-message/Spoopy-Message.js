@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import "./Spoopy-Message.css";
-import {Link} from "react-router-dom";
+import { Link } from "react-router-dom";
 
 class SpoopyMessage extends Component {
   render() {
@@ -19,7 +19,7 @@ class SpoopyMessage extends Component {
           <p>{reasons.join(", ")}</p>
           <p>This link was a guess. You can read more <Link to="/faq#Youtube">here</Link></p>
         </li>
-      )
+      );
     } else {
       return (
         <li className="results">
