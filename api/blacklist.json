@@ -135,6 +135,10 @@
     "vbooter.org": {
       "reason": "Seized Site",
       "source": "Internal"
+    },
+    "thb.nuft.edu.ua": {
+      "reason": "Impersonation",
+      "source": "Internal"
     }
   }
 }
