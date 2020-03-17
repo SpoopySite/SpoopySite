@@ -139,6 +139,10 @@
     "thb.nuft.edu.ua": {
       "reason": "Impersonation",
       "source": "Internal"
+    },
+    "shrinkme.io": {
+      "reason": "Link Shortener & 'money making site'",
+      "source": "Internal"
     }
   }
 }
