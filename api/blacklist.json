@@ -147,6 +147,9 @@
     "xtraffic.plus": {
       "reason": "Traffic Farming site",
       "source": "Internal"
+    },
+    "gatustox.net/": {
+      "reason": "Adf.ly but renamed. Link Shortener."
     }
   }
 }
