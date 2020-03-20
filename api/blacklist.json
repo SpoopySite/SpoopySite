@@ -149,7 +149,8 @@
       "source": "Internal"
     },
     "gatustox.net": {
-      "reason": "Adf.ly but renamed. Link Shortener."
+      "reason": "Adf.ly but renamed. Link Shortener.",
+      "source": "Internal"
     }
   }
 }
