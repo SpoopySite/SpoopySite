@@ -85,6 +85,7 @@ async def ws_spoopy(request: sanic.request.Request, ws: websockets.protocol.WebS
             return
 
         if youtube_check:
+            youtube_check = False
             await ws.send(json.dumps({"url": url, "safety": safety, "reasons": reasons, "youtube": True}))
         else:
             await ws.send(json.dumps({"url": url, "safety": safety, "reasons": reasons}))
