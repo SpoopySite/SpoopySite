@@ -19,8 +19,7 @@ class Spoopy extends Component {
 
   async getData() {
     const suspect_url = decodeURIComponent(this.props.match.params.suspect_url);
-    // const ws = new WebSocket(`${Spoopy.getWebSocket()}/ws`);
-    const ws = new WebSocket("ws://localhost:8282/ws");
+    const ws = new WebSocket(`${Spoopy.getWebSocket()}/ws`);
 
     ws.onopen = function(event) {
       ws.send(suspect_url);
