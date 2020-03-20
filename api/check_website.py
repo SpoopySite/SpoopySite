@@ -54,6 +54,9 @@ async def get_check_website(request):
     if parsed_url.netloc in ["www.youtube.com", "youtube.com"] and parsed_url.path == "/redirect":
         if "q" in urllib.parse.parse_qs(parsed_url.query):
             redirects.append(urllib.parse.parse_qs(parsed_url.query)["q"][0])
+    elif "google.com" in parsed_url.netloc and parsed_url.path == "/url":
+        if "url" in urllib.parse.parse_qs(parsed_url.query):
+            redirects.append(urllib.parse.parse_qs(parsed_url.query)["url"][0])
 
     for redirect_url in redirects:
         checks["urls"][redirect_url] = {"safety": 0}
