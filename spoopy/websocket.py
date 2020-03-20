@@ -68,6 +68,7 @@ async def ws_spoopy(request: sanic.request.Request, ws: websockets.protocol.WebS
 
     url_pool = [url]
     youtube_check = False
+    bitly_warning = False
 
     for url in url_pool:
         parsed = urllib.parse.urlparse(url)
@@ -84,11 +85,14 @@ async def ws_spoopy(request: sanic.request.Request, ws: websockets.protocol.WebS
             await ws.close()
             return
 
-        if youtube_check:
-            youtube_check = False
-            await ws.send(json.dumps({"url": url, "safety": safety, "reasons": reasons, "youtube": True}))
-        else:
-            await ws.send(json.dumps({"url": url, "safety": safety, "reasons": reasons}))
+        await ws.send(json.dumps({"url": url,
+                                  "safety": safety,
+                                  "reasons": reasons,
+                                  "youtube": youtube_check,
+                                  "bitly_warning": bitly_warning}))
+        youtube_check = False
+        bitly_warning = False
+
         if status in [300, 301, 302, 303, 307, 308]:
             if location.startswith("/"):
                 url_pool.append(f"{parsed.scheme}://{parsed.netloc}/{location}")
@@ -96,11 +100,15 @@ async def ws_spoopy(request: sanic.request.Request, ws: websockets.protocol.WebS
                 url_pool.append(location)
         elif "youtube.com" in parsed.netloc and parsed.path == "/redirect":
             if "q" in urllib.parse.parse_qs(parsed.query):
-                url_pool.append(urllib.parse.parse_qs(parsed.query)["q"][0])
+                url_pool.append(urllib.parse.parse_qs(parsed.query).get("q")[0])
                 youtube_check = True
         elif "google.com" in parsed.netloc and parsed.path == "/url":
             if "url" in urllib.parse.parse_qs(parsed.query):
-                url_pool.append(urllib.parse.parse_qs(parsed.query)["url"][0])
+                url_pool.append(urllib.parse.parse_qs(parsed.query).get("url")[0])
+        elif "bitly.com" in parsed.netloc and parsed.path == "/a/warning":
+            if "url" in urllib.parse.parse_qs(parsed.query):
+                url_pool.append(urllib.parse.parse_qs(parsed.query).get("url")[0])
+                bitly_warning = True
     await ws.send(json.dumps({"end": True}))
     await ws.close()
     return

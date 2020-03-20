@@ -13,6 +13,14 @@ class Docs extends Component {
           status code when requested.</p>
         <p>So instead we must "guess" which it should go.</p>
         <code>https://www.youtube.com/redirect?v=VIDEO_CODE&redir_token=TOKEN&html_redirect=INT&event=EVENT&q=https%3A%2F%2Fgoogle.com</code>
+        <h3 id="BitlyWarnings">Bitly Warnings</h3>
+        <p>Bitly warns against some links, this could be any of the following reasons</p>
+        <ul>
+          <li>Bitly user reported a problem</li>
+          <li>Black-listing service reported a problem</li>
+          <li>Shortened multiple times</li>
+          <li>Potentially malicious content</li>
+        </ul>
       </div>
     );
   }
