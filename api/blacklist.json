@@ -143,6 +143,10 @@
     "shrinkme.io": {
       "reason": "Link Shortener & 'money making site'",
       "source": "Internal"
+    },
+    "xtraffic.plus": {
+      "reason": "Traffic Farming site",
+      "source": "Internal"
     }
   }
 }
