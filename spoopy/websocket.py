@@ -93,10 +93,13 @@ async def ws_spoopy(request: sanic.request.Request, ws: websockets.protocol.WebS
                 url_pool.append(f"{parsed.scheme}://{parsed.netloc}/{location}")
             else:
                 url_pool.append(location)
-        elif parsed.netloc in ["www.youtube.com", "youtube.com"] and parsed.path == "/redirect":
+        elif "youtube.com" in parsed.netloc and parsed.path == "/redirect":
             if "q" in urllib.parse.parse_qs(parsed.query):
                 url_pool.append(urllib.parse.parse_qs(parsed.query)["q"][0])
                 youtube_check = True
+        elif "google.com" in parsed.netloc and parsed.path == "/url":
+            if "url" in urllib.parse.parse_qs(parsed.query):
+                url_pool.append(urllib.parse.parse_qs(parsed.query)["url"][0])
     await ws.send(json.dumps({"end": True}))
     await ws.close()
     return
