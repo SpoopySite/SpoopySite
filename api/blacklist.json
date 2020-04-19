@@ -151,6 +151,10 @@
     "gatustox.net": {
       "reason": "Adf.ly but renamed. Link Shortener.",
       "source": "Internal"
+    },
+    "leancoding.co": {
+      "reason": "grabify.link proxy site.",
+      "source": "Internal"
     }
   }
 }
