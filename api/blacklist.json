@@ -155,6 +155,10 @@
     "leancoding.co": {
       "reason": "grabify.link proxy site.",
       "source": "Internal"
+    },
+    "inboxdollars.com": {
+      "reason": "'Free money' site",
+      "source": "Internal"
     }
   }
 }
