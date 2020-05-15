@@ -120,8 +120,7 @@ async def open_blacklist():
 
 async def blacklist_check(url: str):
     blacklist = await open_blacklist()
-    if url.startswith("www."):
-        url = url[4:]
+    url = ".".join(url.split(".")[-2:])
     if url in blacklist["blacklist"]:
         return blacklist["blacklist"][url]
     else:
