@@ -159,6 +159,14 @@
     "inboxdollars.com": {
       "reason": "'Free money' site",
       "source": "Internal"
+    },
+    "dlcordapp.com": {
+      "reason": "Impersonating Discord.",
+      "source": "Internal"
+    },
+    "dircordapp.com": {
+      "reason": "Impersonating Discord",
+      "source": "Internal"
     }
   }
 }
