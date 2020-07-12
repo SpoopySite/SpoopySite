@@ -167,6 +167,10 @@
     "dircordapp.com": {
       "reason": "Impersonating Discord",
       "source": "Internal"
+    },
+    "pocketflip.net": {
+      "reason": "'Free money' site",
+      "source": "Internal"
     }
   }
 }
