@@ -171,6 +171,10 @@
     "pocketflip.net": {
       "reason": "'Free money' site",
       "source": "Internal"
+    },
+    "pocketflipapp.com": {
+      "reason": "Redirects to a 'Free money' site",
+      "source": "Internal"
     }
   }
 }
