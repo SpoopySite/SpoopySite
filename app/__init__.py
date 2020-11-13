@@ -171,7 +171,7 @@ class Server:
         The App will start one worker per available cpu core unless otherwise specified.
         """
 
-        workers = workers or os.cpu_count() or 1
+        workers = workers or 3
 
         self.app.run(host=host, port=port, debug=debug, workers=workers, protocol=WebSocketProtocol, **kwargs)
 
