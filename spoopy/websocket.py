@@ -84,6 +84,12 @@ async def ws_spoopy(request: sanic.request.Request, ws: websockets.protocol.WebS
             await ws.send(json.dumps({"error": f"Could not establish a connection to {url}"}))
             await ws.close()
             return
+        except aiohttp.client_exceptions.ClientConnectorSSLError as err:
+            log.warning(f"Error connect to {url} on WS due to error")
+            log.error(err)
+            await ws.send(json.dumps({"error": f"Could not support the protocol version that {url} uses"}))
+            await ws.close()
+            return
 
         if "youtube.com" in parsed.netloc and parsed.path == "/redirect":
             if "q" in urllib.parse.parse_qs(parsed.query):
