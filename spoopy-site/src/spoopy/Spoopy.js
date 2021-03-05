@@ -13,8 +13,10 @@ class Spoopy extends Component {
 
   static getWebSocket() {
     const l = window.location;
+    let host;
+    host = process.env.NODE_ENV === "development" ? "localhost:8282" : l.host;
     const protocol = l.protocol.endsWith("s:") ? "wss" : "ws";
-    return `${protocol}://${l.host}`;
+    return `${protocol}://${host}`;
   }
 
   async getData() {
@@ -57,10 +59,8 @@ class Spoopy extends Component {
   render() {
     const { spoopy_list, finished, error } = this.state;
 
-    if (error) {
-      return <div className="status error">{error.message}</div>;
-    } else {
-      return (
+    return (
+      error ? <div className="status error">{error.message}</div> :
         <div className="spoopy-wrapper">
           <h1 id="header">{decodeURIComponent(this.props.match.params.suspect_url)}</h1>
           <div id="results">
@@ -76,8 +76,7 @@ class Spoopy extends Component {
             </ol>
           </div>
         </div>
-      );
-    }
+    );
   }
 }
 

@@ -1,15 +1,37 @@
-import React, { Component } from "react";
+import React from "react";
 import "./Spinner.css";
+import { makeStyles } from "@material-ui/core";
+import clsx from "clsx";
 
-class Spinner extends Component {
-  render() {
-    return (
-      <div className="spinner">
-        <div className="cube1"></div>
-        <div className="cube2"></div>
-      </div>
-    );
+const useStyles = makeStyles({
+  spinner: {
+    margin: "100px auto",
+    width: "40px",
+    height: "40px,",
+    position: "relative"
+  },
+  cube: {
+    backgroundColor: "grey",
+    width: "15px",
+    height: "15px",
+    position: "absolute",
+    top: 0,
+    left: 0,
+    animation: "sk-cubemove 1.8s infinite ease-in-out"
+  },
+  delayedCube: {
+    animationDelay: "-.9s"
   }
+});
+
+function Spinner() {
+  const classes = useStyles();
+  return (
+    <div className={classes.spinner}>
+      <div className={classes.cube}/>
+      <div className={clsx(classes.cube, classes.delayedCube)}/>
+    </div>
+  );
 }
 
 export default Spinner;
