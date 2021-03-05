@@ -8,7 +8,8 @@
     "react-dom": "^16.14.0",
     "react-router-dom": "^5.2.0",
     "react-scripts": "^3.4.4",
-    "prop-types": "^15.7.2"
+    "prop-types": "^15.7.2",
+    "fontsource-roboto": "^4.0.0"
   },
   "scripts": {
     "start": "react-scripts start",
