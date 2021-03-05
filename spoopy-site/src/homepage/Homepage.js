@@ -1,10 +1,25 @@
 import React, { useState } from "react";
 import { Redirect } from "react-router-dom";
-import "./Homepage.css";
+import Container from "@material-ui/core/Container";
+import Typography from "@material-ui/core/Typography";
+import { makeStyles } from "@material-ui/core";
+
+const useStyles = makeStyles({
+  wrapper: {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)"
+  },
+  size: {
+    fontSize: "1.3rem"
+  }
+})
 
 function Homepage() {
   const [switchPage, setSwitchPage] = useState(false);
   const [spoopyURL, setSpoopyURL] = useState("");
+  const classes = useStyles();
 
   const goToSpoopy = (event) => {
     const keyCode = event.keyCode || event.which;
@@ -20,16 +35,16 @@ function Homepage() {
   return (
     switchPage ?
       <Redirect push to={`/site/${encodeURIComponent(spoopyURL)}`}/> :
-      <div className="wrapper">
-        <h1>Spoopy Website Detector</h1>
-        <h3>Checks how risky a website is by checking for IP Logging, Phishing, Malware and more.</h3>
-        <div>
-          <label htmlFor="input">Check a link: </label>
-          <input id="input" type="text" value={spoopyURL} onKeyUp={goToSpoopy}
+      <Container className={classes.wrapper}>
+        <Typography variant="h3" component="h1" align="center">Spoopy Website Detector</Typography>
+        <Typography variant="h5" component="h2" align="center">Checks how risky a website is by checking for IP Logging, Phishing, Malware and more.</Typography>
+        <div align="center">
+          <label className={classes.size} htmlFor="input">Check a link: </label>
+          <input className={classes.size} id="input" type="text" value={spoopyURL} onKeyUp={goToSpoopy}
                  onChange={handleChange}/>
-          <button id="go" onClick={goToSpoopy} onKeyUp={goToSpoopy}>Go</button>
+          <button className={classes.size} id="go" onClick={goToSpoopy} onKeyUp={goToSpoopy}>Go</button>
         </div>
-      </div>
+      </Container>
   );
 }
 

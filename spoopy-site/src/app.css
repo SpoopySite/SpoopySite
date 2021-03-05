@@ -29,3 +29,7 @@ html.theme-transition *:after {
     transition: all 750ms !important;
     transition-delay: 0ms !important;
 }
+
+#header {
+    line-break: anywhere;
+}

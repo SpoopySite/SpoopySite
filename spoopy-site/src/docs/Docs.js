@@ -1,5 +1,7 @@
 import React from "react";
 import "./Docs.css";
+import Container from "@material-ui/core/Container";
+import Typography from "@material-ui/core/Typography";
 
 const example_json = {
   "processed": {
@@ -24,20 +26,20 @@ const example_json = {
 
 function Docs() {
   return (
-    <div className="docs">
-      <h2>API</h2>
-      <p>Send a <b>GET</b> request to <b>/api/check_website</b></p>
-      <p>The URL you are checking either needs to be sent in the JSON body
-        under the <b>website</b> key.</p>
-      <p>Or, it needs to be as a query parameter under the value <b>website</b></p>
-      <h2>Response</h2>
-      <p>The response will be a JSON based object which will contain the processed URLs
-        under the "processed" "urls" keys.</p>
-      <p>Each URL will then have the safety, hsts status, blacklisted, phishtank status
-        and the overall status listed within.</p>
-      <h3>Example Response</h3>
+    <Container>
+      <Typography variant="h4" component="h1">API</Typography>
+      <Typography>Send a <b>GET</b> request to <b>/api/check_website</b></Typography>
+      <Typography>The URL you are checking either needs to be sent in the JSON body
+        under the <b>website</b> key.</Typography>
+      <Typography>Or, it needs to be as a query parameter under the value <b>website</b></Typography>
+      <Typography variant="h5" component="h2">Response</Typography>
+      <Typography>The response will be a JSON based object which will contain the processed URLs
+        under the "processed" "urls" keys.</Typography>
+      <Typography>Each URL will then have the safety, hsts status, blacklisted, phishtank status
+        and the overall status listed within.</Typography>
+      <Typography variant="h5" component="h2">Example Response</Typography>
       <div id="example_json"><p>{JSON.stringify(example_json, null, 2)}</p></div>
-    </div>
+    </Container>
   );
 }
 

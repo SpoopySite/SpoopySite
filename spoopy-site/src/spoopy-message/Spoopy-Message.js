@@ -2,6 +2,8 @@ import React from "react";
 import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/core";
+import ListItem from "@material-ui/core/ListItem";
+import ListItemText from "@material-ui/core/ListItemText";
 
 const useStyles = makeStyles({
   results: {
@@ -21,31 +23,37 @@ function SpoopyMessage({ data }) {
 
   if (error) {
     return (
-      <li className={classes.errorResults}>
-        <p>{error}</p>
-      </li>
+      <ListItem className={classes.errorResults}>
+        <ListItemText primary={error}/>
+      </ListItem>
     );
   } else if (youtube) {
     return (
-      <li className={classes.results}>
-        <p>{url} {"\u2714"}</p>
-        <p>This link was a guess. You can read more <Link to="/faq#Youtube">here</Link></p>
-      </li>
+      <ListItem className={classes.results}>
+        <ListItemText
+          primary={`${url} \u2714`}
+          secondary={<>This link was a guess. You can read more <Link to="/faq#Youtube\">here</Link></>}
+        />
+      </ListItem>
     );
   } else if (bitly_warning) {
     return (
-      <li className={classes.results}>
-        <p>{url} {"\u274c"}</p>
-        <p>Bitly does not recommend visiting the next link.
-          You can read more <Link to="/faq#BitlyWarnings">here</Link></p>
-      </li>
+      <ListItem className={classes.results}>
+        <ListItemText
+          primary={`${url} \u274c`}
+          secondary={<>Bitly does not recommend visiting the next link.
+            You can read more <Link to="/faq#BitlyWarnings">here</Link></>}
+        />
+      </ListItem>
     );
   } else {
     return (
-      <li className={classes.results}>
-        <p>{url} {safety ? "\u2714" : "\u274c"}</p>
-        <p>{reasons.join(", ")}</p>
-      </li>
+      <ListItem className={classes.results}>
+        <ListItemText
+          primary={`${url} ${safety ? "\u2714" : "\u274c"}`}
+          secondary={reasons.join(", ")}
+        />
+      </ListItem>
     );
   }
 }

@@ -44,18 +44,16 @@ class App extends Component {
 
   render() {
     return (
-      <main>
-        <Router>
-          <Header toggleTheme={this.toggleTheme} theme={this.state.theme}/>
-          <Switch>
-            <Route path={"/site/:suspect_url"} children={<Spoopy/>}/>
-            <Route path="/docs" children={<Docs/>}/>
-            <Route path="/faq" children={<Faq/>}/>
-            <Route exact-path="/" children={<Homepage/>}/>
-          </Switch>
-          <Footer/>
-        </Router>
-      </main>
+      <Router>
+        <Header toggleTheme={this.toggleTheme} theme={this.state.theme}/>
+        <Switch>
+          <Route path={"/site/:suspect_url"} children={<Spoopy/>}/>
+          <Route path="/docs" children={<Docs/>}/>
+          <Route path="/faq" children={<Faq/>}/>
+          <Route exact-path="/" children={<Homepage/>}/>
+        </Switch>
+        <Footer/>
+      </Router>
     );
   }
 }

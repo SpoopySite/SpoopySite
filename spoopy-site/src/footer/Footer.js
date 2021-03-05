@@ -1,7 +1,8 @@
 import React from "react";
-import { Link } from "react-router-dom";
-import { makeStyles } from "@material-ui/core";
+import { Link as RouterLink } from "react-router-dom";
+import { Link, makeStyles } from "@material-ui/core";
 import clsx from "clsx";
+import Typography from "@material-ui/core/Typography";
 
 const useStyles = makeStyles({
   footer: {
@@ -33,14 +34,14 @@ function Footer() {
   return (
     <footer className={classes.footer}>
       <p className={classes.p}>
-        <Link className={classes.a} to="/">Home</Link>
-        <Link className={classes.a} to="/docs">Docs</Link>
-        <Link className={classes.a} to="/faq">FAQ</Link>
-        <a href="https://github.com/Lagicrus/spoopy-python">GitHub</a>
+        <Link component={RouterLink} className={classes.a} to="/">Home</Link>
+        <Link component={RouterLink} className={classes.a} to="/docs">Docs</Link>
+        <Link component={RouterLink} className={classes.a} to="/faq">FAQ</Link>
+        <Link href="https://github.com/Lagicrus/spoopy-python">GitHub</Link>
       </p>
-      <p className={clsx(classes.p, classes.inspiration)}>
-        Inspired by <a href="https://github.com/spoopy-link/server">spoopy link</a>
-      </p>
+      <Typography className={clsx(classes.p, classes.inspiration)}>
+        Inspired by <Link href="https://github.com/spoopy-link/server">spoopy link</Link>
+      </Typography>
     </footer>
   );
 }

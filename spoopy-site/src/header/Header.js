@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import Switch from "@material-ui/core/Switch";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/core";
+import Typography from "@material-ui/core/Typography";
+import Grid from "@material-ui/core/Grid";
 
 const useStyles = makeStyles({
   themeSwitch: {
@@ -30,13 +32,25 @@ function Header({ theme, toggleTheme }) {
   return (
     <header>
       <div className={classes.themeSwitch}>
-        <span>Dark Mode</span>
-        <Switch
-          checked={checkedC}
-          onChange={handleChange}
-          color="default"
-        />
-        <span>Light Mode</span>
+        <Grid component="label" container alignItems="center" spacing={1}>
+          <Grid item>
+            <Typography>
+              Dark Mode
+            </Typography>
+          </Grid>
+          <Grid item>
+            <Switch
+              checked={checkedC}
+              onChange={handleChange}
+              color="default"
+            />
+          </Grid>
+          <Grid item>
+            <Typography>
+              Light Mode
+            </Typography>
+          </Grid>
+        </Grid>
       </div>
     </header>
   );

@@ -2,7 +2,9 @@ import React, { Component } from "react";
 import { withRouter } from "react-router-dom";
 import SpoopyMessage from "../spoopy-message/Spoopy-Message";
 import Spinner from "../spinner/Spinner";
-import "./Spoopy.css";
+import Container from "@material-ui/core/Container";
+import Typography from "@material-ui/core/Typography";
+import List from "@material-ui/core/List";
 
 class Spoopy extends Component {
   constructor(props) {
@@ -61,21 +63,26 @@ class Spoopy extends Component {
 
     return (
       error ? <div className="status error">{error.message}</div> :
-        <div className="spoopy-wrapper">
-          <h1 id="header">{decodeURIComponent(this.props.match.params.suspect_url)}</h1>
-          <div id="results">
-            <h2>{finished ? null : "Checking if Safe"}</h2>
-            <ol>
-              <>
-                {spoopy_list.map(item => (
-                  <SpoopyMessage data={item} key={item.url}/>
-                ))}
-              </>
+        <Container>
+          <Typography
+            variant="h3"
+            component="h1"
+            align="center"
+            id="header"
+          >
+            {decodeURIComponent(this.props.match.params.suspect_url)}
+          </Typography>
+          <Container>
+            <Typography variant="h5" component="h2">{finished ? null : "Checking if Safe"}</Typography>
+            <List>
+              {spoopy_list.map(item => (
+                <SpoopyMessage data={item} key={item.url}/>
+              ))}
               {finished ? null :
                 <Spinner/>}
-            </ol>
-          </div>
-        </div>
+            </List>
+          </Container>
+        </Container>
     );
   }
 }
