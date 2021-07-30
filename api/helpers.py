@@ -1,3 +1,4 @@
+import re
 import datetime
 import json
 import logging
@@ -6,11 +7,24 @@ from urllib.parse import urlparse
 import aiohttp
 import asyncpg
 import validators.url
+from bs4 import BeautifulSoup
 
 from app.config import Config
 
 config = Config.from_file()
 log = logging.getLogger(__name__)
+
+
+def refresh_header_finder(text: str):
+    soup = BeautifulSoup(text, features="html.parser")
+    meta = soup.head.find_all("meta")
+    http_equiv = [x.attrs.get("http-equiv") for x in meta]
+    if any(http_equiv):
+        for meta_tag in meta:
+            if meta_tag.attrs.get("http-equiv") == "refresh":
+                content = meta_tag.attrs.get("content")
+                if "URL=" in content:
+                    return re.search("URL(.*)", content).group(1)[1:]
 
 
 async def redirect_gatherer(url: str, session: aiohttp.client.ClientSession):
@@ -190,7 +204,11 @@ async def update_webrisk(url: str, session: aiohttp.client.ClientSession, pool: 
         ("threatTypes", "SOCIAL_ENGINEERING")
     ]
     async with session.get("https://webrisk.googleapis.com/v1beta1/uris:search", params=params) as resp:
-        json_content = await resp.json()
+        json_content: dict = await resp.json()
+
+    if json_content.get("error"):
+        log.info("Error with Google API")
+        log.error(json_content)
 
     if json_content == {}:
         await insert_blank_webrisk(pool, url)

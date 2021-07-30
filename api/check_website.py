@@ -46,6 +46,13 @@ async def get_check_website(request):
         redirects.append(url)
     log.info(redirects)
 
+    async with request.app.session.get(redirects[-1], allow_redirects=False) as resp:
+        text = await resp.text("utf-8")
+        resp.close()
+    refresh_header = api.helpers.refresh_header_finder(text)
+    if refresh_header:
+        redirects.append(refresh_header)
+
     checks = {
         "urls": {},
     }

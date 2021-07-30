@@ -6,7 +6,7 @@ import aiohttp.client_exceptions
 import asyncpg.pool
 import sanic.request
 import sanic.response
-import websockets.protocol
+import websockets.legacy.protocol
 from sanic import Blueprint
 import urllib.parse
 
@@ -20,9 +20,10 @@ async def get_check_website(url: str, session: aiohttp.client.ClientSession, db:
     async with session.get(url, allow_redirects=False) as resp:
         status = resp.status
         headers = resp.headers
+        text = await resp.text("utf-8")
         resp.close()
 
-    log.info(status)
+    log.info(f"Status: {status}")
 
     reasons = []
     safety = True
@@ -31,6 +32,7 @@ async def get_check_website(url: str, session: aiohttp.client.ClientSession, db:
     hsts_check = await api.helpers.hsts_check(parsed_url.netloc, session, db)
     blacklist_check = await api.helpers.blacklist_check(parsed_url.netloc)
     webrisk_check = await api.helpers.webrisk_check(url, session, db)
+    refresh_redirect = api.helpers.refresh_header_finder(text)
 
     if blacklist_check:
         safety = False
@@ -53,13 +55,13 @@ async def get_check_website(url: str, session: aiohttp.client.ClientSession, db:
         safety = False
         reasons.append("Phishtank")
 
-    return status, headers.get("location"), safety, reasons
+    return status, headers.get("location"), safety, reasons, refresh_redirect
 
 
 @bp.websocket("/ws")
-async def ws_spoopy(request: sanic.request.Request, ws: websockets.protocol.WebSocketCommonProtocol):
+async def ws_spoopy(request: sanic.request.Request, ws: websockets.legacy.protocol.WebSocketCommonProtocol):
     url = await ws.recv()
-    log.info(url)
+    log.debug(f"New URL: {url}")
 
     if not await api.helpers.validate_url(url):
         await ws.send(json.dumps({"error": "Invalid URL"}))
@@ -78,7 +80,7 @@ async def ws_spoopy(request: sanic.request.Request, ws: websockets.protocol.WebS
             await ws.close()
 
         try:
-            status, location, safety, reasons = await get_check_website(url, request.app.session, request.app.db, request.app.fish)
+            status, location, safety, reasons, refresh_redirect = await get_check_website(url, request.app.session, request.app.db, request.app.fish)
         except aiohttp.client_exceptions.ClientConnectorError:
             log.warning(f"Error connecting to {url} on WS")
             await ws.send(json.dumps({"error": f"Could not establish a connection to {url}"}))
@@ -116,6 +118,8 @@ async def ws_spoopy(request: sanic.request.Request, ws: websockets.protocol.WebS
                 url_pool.append(f"{parsed.scheme}://{parsed.netloc}/{location}")
             else:
                 url_pool.append(location)
+        if refresh_redirect:
+            url_pool.append(refresh_redirect)
     await ws.send(json.dumps({"end": True}))
     await ws.close()
     return
