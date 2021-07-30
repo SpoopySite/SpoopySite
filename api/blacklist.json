@@ -175,6 +175,10 @@
     "pocketflipapp.com": {
       "reason": "Redirects to a 'Free money' site",
       "source": "Internal"
+    },
+    "ezstat.ru": {
+      "reason": "IP Logger",
+      "source": "Internal"
     }
   }
 }
