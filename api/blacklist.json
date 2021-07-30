@@ -179,6 +179,10 @@
     "ezstat.ru": {
       "reason": "IP Logger",
       "source": "Internal"
+    },
+    "homophobe.fr": {
+      "reason": "Homophobic",
+      "source": "Internal"
     }
   }
 }
