@@ -1,11 +1,12 @@
-import aiohttp.client_exceptions
 import logging
+import urllib.parse
 
+import aiohttp.client_exceptions
 import sanic
 import sanic.response
 from sanic import Blueprint
-import urllib.parse
 
+import api.checkers.cloudflare
 import api.helpers
 
 bp = Blueprint("check_website")
@@ -76,6 +77,7 @@ async def get_check_website(request):
         blacklist_check = await api.helpers.blacklist_check(parsed_url.netloc)
         phishtank_check = await api.helpers.parse_phistank(url, request.app.fish)
         webrisk_check = await api.helpers.webrisk_check(url, request.app.session, request.app.db)
+        cloudflare_check = await api.checkers.cloudflare.check(parsed_url.netloc)
 
         if not hsts_check == "preloaded":
             checks["urls"][redirect_url]["safety"] -= 1
@@ -95,6 +97,8 @@ async def get_check_website(request):
         elif phishtank_check:
             checks["urls"][redirect_url]["safe"] = False
         elif "webrisk" in checks["urls"][redirect_url]:
+            checks["urls"][redirect_url]["safe"] = False
+        elif str(cloudflare_check[0]) == "0.0.0.0":
             checks["urls"][redirect_url]["safe"] = False
         else:
             checks["urls"][redirect_url]["safe"] = True
