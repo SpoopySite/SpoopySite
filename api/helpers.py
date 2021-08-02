@@ -17,6 +17,8 @@ log = logging.getLogger(__name__)
 
 def refresh_header_finder(text: str):
     soup = BeautifulSoup(text, features="html.parser")
+    if not soup.head:
+        return
     meta = soup.head.find_all("meta")
     http_equiv = [x.attrs.get("http-equiv") for x in meta]
     if any(http_equiv):
