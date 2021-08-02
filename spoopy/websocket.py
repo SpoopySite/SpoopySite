@@ -10,6 +10,7 @@ import websockets.legacy.protocol
 from sanic import Blueprint
 import urllib.parse
 import api.checkers.cloudflare
+import api.checkers.luma
 
 import api.helpers
 
@@ -35,6 +36,7 @@ async def get_check_website(url: str, session: aiohttp.client.ClientSession, db:
     webrisk_check = await api.helpers.webrisk_check(url, session, db)
     refresh_redirect = api.helpers.refresh_header_finder(text)
     cloudflare_check = await api.checkers.cloudflare.check(parsed_url.netloc)
+    luma_check = await api.checkers.luma.check(parsed_url.netloc, session)
 
     if blacklist_check:
         safety = False
@@ -60,6 +62,10 @@ async def get_check_website(url: str, session: aiohttp.client.ClientSession, db:
     if str(cloudflare_check[0]) == "0.0.0.0":
         safety = False
         reasons.append("Cloudflare")
+
+    if luma_check:
+        safety = False
+        reasons.append("Luma: Phishing Detection")
 
     return status, headers.get("location"), safety, reasons, refresh_redirect
 
