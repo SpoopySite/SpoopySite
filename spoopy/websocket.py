@@ -9,6 +9,7 @@ import sanic.response
 import websockets.legacy.protocol
 from sanic import Blueprint
 import urllib.parse
+import api.checkers.cloudflare
 
 import api.helpers
 
@@ -33,6 +34,7 @@ async def get_check_website(url: str, session: aiohttp.client.ClientSession, db:
     blacklist_check = await api.helpers.blacklist_check(parsed_url.netloc)
     webrisk_check = await api.helpers.webrisk_check(url, session, db)
     refresh_redirect = api.helpers.refresh_header_finder(text)
+    cloudflare_check = await api.checkers.cloudflare.check(parsed_url.netloc)
 
     if blacklist_check:
         safety = False
@@ -54,6 +56,10 @@ async def get_check_website(url: str, session: aiohttp.client.ClientSession, db:
     if await api.helpers.parse_phistank(url, fish):
         safety = False
         reasons.append("Phishtank")
+
+    if str(cloudflare_check[0]) == "0.0.0.0":
+        safety = False
+        reasons.append("Cloudflare")
 
     return status, headers.get("location"), safety, reasons, refresh_redirect
 
