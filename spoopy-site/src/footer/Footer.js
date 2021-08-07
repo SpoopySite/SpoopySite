@@ -1,8 +1,9 @@
 import React from "react";
 import { Link as RouterLink } from "react-router-dom";
-import { Link, makeStyles } from "@material-ui/core";
+import { Link } from "@material-ui/core";
 import clsx from "clsx";
 import Typography from "@material-ui/core/Typography";
+import { makeStyles } from "@material-ui/styles";
 
 const useStyles = makeStyles({
   footer: {
@@ -13,8 +14,7 @@ const useStyles = makeStyles({
     paddingBottom: "0.5em",
     borderTop: "3px solid lightslategray",
     fontSize: "20px",
-    textAlign: "center",
-    backgroundColor: "white"
+    textAlign: "center"
   },
   p: {
     padding: 0,

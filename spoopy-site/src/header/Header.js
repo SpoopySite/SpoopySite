@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Switch from "@material-ui/core/Switch";
 import PropTypes from "prop-types";
-import { makeStyles } from "@material-ui/core";
 import Typography from "@material-ui/core/Typography";
 import Grid from "@material-ui/core/Grid";
+import { makeStyles } from "@material-ui/styles";
 
 const useStyles = makeStyles({
   themeSwitch: {
@@ -14,19 +14,32 @@ const useStyles = makeStyles({
   }
 });
 
-function Header({ theme, toggleTheme }) {
+function changeItem(event, value, key, reloadWrapper) {
+  if (value == null) {
+    return;
+  }
+  localStorage.setItem(key, value);
+  reloadWrapper(Math.round(Math.random() * 100));
+}
+
+function Header({ theme, handleReload }) {
   const [checkedC, setCheckedC] = useState(true);
   const classes = useStyles();
+    const handleReloadWrapper = useCallback(
+    (randomInt) => handleReload(randomInt),
+    [handleReload]
+  );
 
   useEffect(() => {
-    if (checkedC.length === 0) {
-      setCheckedC(theme === "light");
+    if (theme === "dark") {
+      setCheckedC(false)
     }
   }, [checkedC, theme]);
 
-  const handleChange = event => {
+  const handleChange = (event, value) => {
     setCheckedC(event.target.checked);
-    toggleTheme();
+    const num = value === false ? 1 : 2;
+    changeItem(event, num, "darkTheme", handleReloadWrapper);
   };
 
   return (
@@ -58,7 +71,7 @@ function Header({ theme, toggleTheme }) {
 
 Header.propTypes = {
   theme: PropTypes.string.isRequired,
-  toggleTheme: PropTypes.func.isRequired
+  handleReload: PropTypes.func.isRequired
 };
 
 export default Header;
