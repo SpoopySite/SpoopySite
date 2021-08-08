@@ -1,5 +1,7 @@
 import json
 import logging
+import urllib.parse
+from urllib.parse import ParseResult
 
 import aiohttp.client
 import aiohttp.client_exceptions
@@ -8,10 +10,10 @@ import sanic.request
 import sanic.response
 import websockets.legacy.protocol
 from sanic import Blueprint
-import urllib.parse
+
 import api.checkers.cloudflare
 import api.checkers.luma
-
+import api.handlers.handlers
 import api.helpers
 
 bp = Blueprint("spoopy_websocket")
@@ -85,14 +87,16 @@ async def ws_spoopy(request: sanic.request.Request, ws: websockets.legacy.protoc
     bitly_warning = False
 
     for url in url_pool:
-        parsed = urllib.parse.urlparse(url)
+        parsed: ParseResult = urllib.parse.urlparse(url)
 
         if "spoopy.oceanlord.me" in url:
             await ws.send(json.dumps({"error": "No."}))
             await ws.close()
 
         try:
-            status, location, safety, reasons, refresh_redirect = await get_check_website(url, request.app.session, request.app.db, request.app.fish)
+            status, location, safety, reasons, refresh_redirect = await get_check_website(url, request.app.session,
+                                                                                          request.app.db,
+                                                                                          request.app.fish)
         except aiohttp.client_exceptions.ClientConnectorError:
             log.warning(f"Error connecting to {url} on WS")
             await ws.send(json.dumps({"error": f"Could not establish a connection to {url}"}))
@@ -105,17 +109,11 @@ async def ws_spoopy(request: sanic.request.Request, ws: websockets.legacy.protoc
             await ws.close()
             return
 
-        if "youtube.com" in parsed.netloc and parsed.path == "/redirect":
-            if "q" in urllib.parse.parse_qs(parsed.query):
-                url_pool.append(urllib.parse.parse_qs(parsed.query).get("q")[0])
-                youtube_check = True
-        elif "google.com" in parsed.netloc and parsed.path == "/url":
-            if "url" in urllib.parse.parse_qs(parsed.query):
-                url_pool.append(urllib.parse.parse_qs(parsed.query).get("url")[0])
-        elif "bitly.com" in parsed.netloc and parsed.path == "/a/warning":
-            if "url" in urllib.parse.parse_qs(parsed.query):
-                url_pool.append(urllib.parse.parse_qs(parsed.query).get("url")[0])
-                bitly_warning = True
+        handler_check = api.handlers.handlers.handlers(parsed)
+        if handler_check["url"]:
+            url_pool.append(handler_check.get("url"))
+            youtube_check = handler_check.get("youtube")
+            bitly_warning = handler_check.get("bitly")
 
         await ws.send(json.dumps({"url": url,
                                   "safety": safety,
