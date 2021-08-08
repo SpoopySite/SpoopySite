@@ -129,7 +129,8 @@ async def ws_spoopy(request: sanic.request.Request, ws: websockets.legacy.protoc
             if location.startswith("/"):
                 url_pool.append(f"{parsed.scheme}://{parsed.netloc}/{location}")
             else:
-                url_pool.append(location)
+                if location not in url_pool:
+                    url_pool.append(location)
         if refresh_redirect:
             url_pool.append(refresh_redirect)
     await ws.send(json.dumps({"end": True}))
