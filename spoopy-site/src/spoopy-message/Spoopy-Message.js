@@ -18,7 +18,7 @@ const useStyles = makeStyles({
 });
 
 function SpoopyMessage({ data }) {
-  const { url, safety, reasons, error, youtube, bitly_warning } = data;
+  const { url, safety, reasons, error, youtube, bitly_warning, adfly } = data;
   const classes = useStyles();
 
   if (error) {
@@ -43,6 +43,15 @@ function SpoopyMessage({ data }) {
           primary={`${url} \u274c`}
           secondary={<>Bitly does not recommend visiting the next link.
             You can read more <Link to="/faq#BitlyWarnings">here</Link></>}
+        />
+      </ListItem>
+    );
+  } else if (adfly) {
+    return (
+      <ListItem className={classes.results}>
+        <ListItemText
+          primary={`${url} ${safety ? "\u2714" : "\u274c"}`}
+          secondary="Known Adfly Domain"
         />
       </ListItem>
     );

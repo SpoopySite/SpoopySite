@@ -1,13 +1,17 @@
+import logging
 from urllib.parse import ParseResult
 
-import bitly
-import google
-import youtube
+import aiohttp.client
+
+from . import bitly, youtube, google, adfly
+
+log = logging.getLogger(__name__)
 
 
-def handlers(parsed: ParseResult):
+def handlers(parsed: ParseResult, text: str):
     youtube_check = False
     bitly_warning = False
+    adfly_warning = False
     url = None
 
     if "youtube.com" in parsed.netloc and parsed.path == "/redirect":
@@ -24,5 +28,10 @@ def handlers(parsed: ParseResult):
         if check:
             url = check[0]
             bitly_warning = True
+    elif "zoee.xyz" in parsed.netloc and len(parsed.path) > 0:
+        check = adfly.adfly(text)
+        if check:
+            url = check
+            adfly_warning = True
 
-    return {"url": url, "youtube": youtube_check, "bitly": bitly_warning}
+    return {"url": url, "youtube": youtube_check, "bitly": bitly_warning, "adfly": adfly_warning}

@@ -69,7 +69,11 @@ async def get_check_website(url: str, session: aiohttp.client.ClientSession, db:
         safety = False
         reasons.append("Luma: Phishing Detection")
 
-    return status, headers.get("location"), safety, reasons, refresh_redirect
+    location = headers.get("location")
+    if not location:
+        location = headers.get("Location")
+
+    return status, location, safety, reasons, refresh_redirect, text
 
 
 @bp.websocket("/ws")
@@ -85,6 +89,7 @@ async def ws_spoopy(request: sanic.request.Request, ws: websockets.legacy.protoc
     url_pool = [url]
     youtube_check = False
     bitly_warning = False
+    adfly = False
 
     for url in url_pool:
         parsed: ParseResult = urllib.parse.urlparse(url)
@@ -94,7 +99,7 @@ async def ws_spoopy(request: sanic.request.Request, ws: websockets.legacy.protoc
             await ws.close()
 
         try:
-            status, location, safety, reasons, refresh_redirect = await get_check_website(url, request.app.session,
+            status, location, safety, reasons, refresh_redirect, text = await get_check_website(url, request.app.session,
                                                                                           request.app.db,
                                                                                           request.app.fish)
         except aiohttp.client_exceptions.ClientConnectorError:
@@ -109,19 +114,22 @@ async def ws_spoopy(request: sanic.request.Request, ws: websockets.legacy.protoc
             await ws.close()
             return
 
-        handler_check = api.handlers.handlers.handlers(parsed)
+        handler_check = api.handlers.handlers.handlers(parsed, text)
         if handler_check["url"]:
             url_pool.append(handler_check.get("url"))
             youtube_check = handler_check.get("youtube")
             bitly_warning = handler_check.get("bitly")
+            adfly = handler_check.get("adfly")
 
         await ws.send(json.dumps({"url": url,
                                   "safety": safety,
                                   "reasons": reasons,
                                   "youtube": youtube_check,
-                                  "bitly_warning": bitly_warning}))
+                                  "bitly_warning": bitly_warning,
+                                  "adfly": adfly}))
         youtube_check = False
         bitly_warning = False
+        adfly = False
 
         if status in [300, 301, 302, 303, 307, 308]:
             if location.startswith("/"):
