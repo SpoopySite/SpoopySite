@@ -1,14 +1,13 @@
 import logging
 from urllib.parse import ParseResult
-
-import aiohttp.client
+import multidict
 
 from . import bitly, youtube, google, adfly
 
 log = logging.getLogger(__name__)
 
 
-def handlers(parsed: ParseResult, text: str):
+def handlers(parsed: ParseResult, text: str, headers: multidict.CIMultiDictProxy):
     youtube_check = False
     bitly_warning = False
     adfly_warning = False
@@ -28,7 +27,7 @@ def handlers(parsed: ParseResult, text: str):
         if check:
             url = check[0]
             bitly_warning = True
-    elif "zoee.xyz" in parsed.netloc and len(parsed.path) > 0:
+    elif headers.get("x-powered-by") == "adfly" and len(parsed.path) > 0:
         check = adfly.adfly(text)
         if check:
             url = check

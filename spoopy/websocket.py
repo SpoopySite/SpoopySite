@@ -73,7 +73,7 @@ async def get_check_website(url: str, session: aiohttp.client.ClientSession, db:
     if not location:
         location = headers.get("Location")
 
-    return status, location, safety, reasons, refresh_redirect, text
+    return status, location, safety, reasons, refresh_redirect, text, headers
 
 
 @bp.websocket("/ws")
@@ -99,7 +99,7 @@ async def ws_spoopy(request: sanic.request.Request, ws: websockets.legacy.protoc
             await ws.close()
 
         try:
-            status, location, safety, reasons, refresh_redirect, text = await get_check_website(url, request.app.session,
+            status, location, safety, reasons, refresh_redirect, text, headers = await get_check_website(url, request.app.session,
                                                                                           request.app.db,
                                                                                           request.app.fish)
         except aiohttp.client_exceptions.ClientConnectorError:
@@ -114,7 +114,7 @@ async def ws_spoopy(request: sanic.request.Request, ws: websockets.legacy.protoc
             await ws.close()
             return
 
-        handler_check = api.handlers.handlers.handlers(parsed, text)
+        handler_check = api.handlers.handlers.handlers(parsed, text, headers)
         if handler_check["url"]:
             url_pool.append(handler_check.get("url"))
             youtube_check = handler_check.get("youtube")
