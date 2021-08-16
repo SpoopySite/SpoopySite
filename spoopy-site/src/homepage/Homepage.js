@@ -32,8 +32,8 @@ function Homepage() {
    * @param {React.ChangeEvent<HTMLInputElement>} event
    */
   const handleChange = (event) => {
-    let url = event.target.value;
-    if (!url.startsWith("http://") && !url.startsWith("https://")) {
+    let url = event.target.value.trim();
+    if (!url.startsWith("http") && !url.startsWith("https") && url.length > 0) {
       url = `http://${url}`
     }
     setSpoopyURL(url);
