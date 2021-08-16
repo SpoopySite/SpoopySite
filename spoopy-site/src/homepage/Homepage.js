@@ -28,8 +28,15 @@ function Homepage() {
     }
   };
 
+  /**
+   * @param {React.ChangeEvent<HTMLInputElement>} event
+   */
   const handleChange = (event) => {
-    setSpoopyURL(event.target.value);
+    let url = event.target.value;
+    if (!url.startsWith("http://") && !url.startsWith("https://")) {
+      url = `http://${url}`
+    }
+    setSpoopyURL(url);
   };
 
   return (
