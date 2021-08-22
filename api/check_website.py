@@ -73,7 +73,7 @@ async def get_check_website(request):
     for redirect_url in redirects:
         checks["urls"][redirect_url] = {"safety": 0}
 
-        parsed_url = await api.helpers.url_splitter(url)
+        parsed_url = await api.helpers.url_splitter(redirect_url)
         hsts_check = await api.helpers.hsts_check(parsed_url.netloc, request.app.session, request.app.db)
         blacklist_check = await api.helpers.blacklist_check(parsed_url.netloc)
         phishtank_check = await api.helpers.parse_phistank(url, request.app.fish)
