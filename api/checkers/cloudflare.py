@@ -7,7 +7,7 @@ log = logging.getLogger(__name__)
 
 
 async def check(domain: str, rtype: str = "A") -> dns.rrset.RRset:
-    log.info(domain)
+    log.info(f"CloudFlare checking: {domain}")
     rs = Resolver()
     rs.nameservers = ["1.1.1.2"]
     rs.timeout = 2

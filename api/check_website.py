@@ -1,5 +1,6 @@
 import logging
 import urllib.parse
+from urllib.parse import ParseResult
 
 import aiohttp.client_exceptions
 import sanic
@@ -8,14 +9,16 @@ from sanic import Blueprint
 
 import api.checkers.cloudflare
 import api.checkers.luma
+import api.handlers
 import api.helpers
+from api.tool_check_website_wrapper import get_check_website
 
 bp = Blueprint("check_website")
 log = logging.getLogger(__name__)
 
 
 @bp.route("/check_website", methods=["GET"])
-async def get_check_website(request):
+async def get_api_check_website(request):
     try:
         if "website" in request.args:
             search_query = request.args["website"][0]
@@ -59,53 +62,63 @@ async def get_check_website(request):
         "urls": {},
     }
 
-    parsed_url = urllib.parse.urlparse(redirects[-1])
-    if "youtube.com" in parsed_url.netloc and parsed_url.path == "/redirect":
-        if "q" in urllib.parse.parse_qs(parsed_url.query):
-            redirects.append(urllib.parse.parse_qs(parsed_url.query).get("q")[0])
-    elif "google.com" in parsed_url.netloc and parsed_url.path == "/url":
-        if "url" in urllib.parse.parse_qs(parsed_url.query):
-            redirects.append(urllib.parse.parse_qs(parsed_url.query).get("url")[0])
-    elif "bitly.com" in parsed_url.netloc and parsed_url.path == "/a/warning":
-        if "url" in urllib.parse.parse_qs(parsed_url.query):
-            redirects.append(urllib.parse.parse_qs(parsed_url.query).get("url")[0])
+    # parsed_url = urllib.parse.urlparse(redirects[-1])
+    # if "youtube.com" in parsed_url.netloc and parsed_url.path == "/redirect":
+    #     if "q" in urllib.parse.parse_qs(parsed_url.query):
+    #         redirects.append(urllib.parse.parse_qs(parsed_url.query).get("q")[0])
+    # elif "google.com" in parsed_url.netloc and parsed_url.path == "/url":
+    #     if "url" in urllib.parse.parse_qs(parsed_url.query):
+    #         redirects.append(urllib.parse.parse_qs(parsed_url.query).get("url")[0])
+    # elif "bitly.com" in parsed_url.netloc and parsed_url.path == "/a/warning":
+    #     if "url" in urllib.parse.parse_qs(parsed_url.query):
+    #         redirects.append(urllib.parse.parse_qs(parsed_url.query).get("url")[0])
 
     for redirect_url in redirects:
         checks["urls"][redirect_url] = {"safety": 0}
+        parsed: ParseResult = urllib.parse.urlparse(redirect_url)
 
-        parsed_url = await api.helpers.url_splitter(redirect_url)
-        hsts_check = await api.helpers.hsts_check(parsed_url.netloc, request.app.session, request.app.db)
-        blacklist_check = await api.helpers.blacklist_check(parsed_url.netloc)
-        phishtank_check = await api.helpers.parse_phistank(url, request.app.fish)
-        webrisk_check = await api.helpers.webrisk_check(url, request.app.session, request.app.db)
-        cloudflare_check = await api.checkers.cloudflare.check(parsed_url.netloc)
-        luma_check = await api.checkers.luma.check(parsed_url.netloc, request.app.session)
+        try:
+            data = await get_check_website(redirect_url,
+                                           request.app.session,
+                                           request.app.db,
+                                           request.app.fish)
+            status, location, safety, reasons, refresh_redirect, text, headers, hsts_check = data
+        except aiohttp.client_exceptions.ClientConnectorError:
+            log.warning(f"Error connecting to {redirect_url} on API")
+            return sanic.response.json({"error": f"Could not establish a connection to {redirect_url}"})
+        except aiohttp.client_exceptions.ClientConnectorSSLError as err:
+            log.warning(f"Error connect to {redirect_url} on API due to error")
+            log.error(err)
+            return sanic.response.json({"error": f"Could not support the protocol version that {redirect_url} uses"})
 
-        if not hsts_check == "preloaded":
-            checks["urls"][redirect_url]["safety"] -= 1
-        checks["urls"][redirect_url]["hsts"] = hsts_check if hsts_check == "preloaded" else "NO_HSTS"
-        checks["urls"][redirect_url]["blacklist"] = blacklist_check
-        checks["urls"][redirect_url]["phishtank"] = phishtank_check
-        checks["urls"][redirect_url]["webrisk"] = []
+        handler_check = api.handlers.handlers.handlers(parsed, text, headers)
 
-        for key in webrisk_check:
-            if webrisk_check.get(key):
-                checks["urls"][redirect_url]["webrisk"].append(key)
-        if not checks["urls"][redirect_url]["webrisk"]:
-            checks["urls"][redirect_url].pop("webrisk")
+        adfly = False
+        bitly_warning = False
+        youtube_check = False
 
-        if blacklist_check:
-            checks["urls"][redirect_url]["safe"] = False
-        elif phishtank_check:
-            checks["urls"][redirect_url]["safe"] = False
-        elif "webrisk" in checks["urls"][redirect_url]:
-            checks["urls"][redirect_url]["safe"] = False
-        elif str(cloudflare_check[0]) == "0.0.0.0":
-            checks["urls"][redirect_url]["safe"] = False
-        elif luma_check:
-            checks["urls"][redirect_url]["safe"] = False
-        else:
-            checks["urls"][redirect_url]["safe"] = True
+        if handler_check["url"]:
+            redirects.append(handler_check.get("url"))
+            youtube_check = handler_check.get("youtube")
+            bitly_warning = handler_check.get("bitly")
+            adfly = handler_check.get("adfly")
+
+        checks["urls"][redirect_url] = {
+            "not_safe_reasons": reasons,
+            "safe": safety,
+            "hsts": hsts_check if hsts_check == "preloaded" else "NO_HSTS",
+            "safety": 0 - len(reasons)
+        }
+        if adfly:
+            checks["urls"][redirect_url]["adfly"] = "Adfly detected"
+        if youtube_check:
+            checks["urls"][redirect_url]["youtube"] = "Youtube detected"
+        if bitly_warning:
+            checks["urls"][redirect_url]["Bitly"] = "Bitly detected"
+
+        # parsed_url = await api.helpers.url_splitter(redirect_url)
+        # phishtank_check = await api.helpers.parse_phistank(url, request.app.fish)
+        # checks["urls"][redirect_url]["phishtank"] = phishtank_check
 
     # log.info(await api.helpers.redirect_gatherer(url, request.app.session))
     # checks[url]["redirects"] = await api.helpers.redirect_gatherer(url, request.app.session)

@@ -1,8 +1,9 @@
 aiohttp
 ruamel.yaml
-sanic>=19.03, <=19.04
+sanic
 requests
 validators
 asyncpg
 websockets
 bs4
+dnspython
