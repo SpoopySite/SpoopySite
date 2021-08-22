@@ -10,6 +10,7 @@ import validators.url
 from bs4 import BeautifulSoup
 
 from app.config import Config
+from app.useragents import get_random_user_agent
 
 config = Config.from_file()
 log = logging.getLogger(__name__)
@@ -30,7 +31,7 @@ def refresh_header_finder(text: str):
 
 
 async def redirect_gatherer(url: str, session: aiohttp.client.ClientSession):
-    async with session.get(url) as resp:
+    async with session.get(url, headers={"User-Agent": get_random_user_agent()}) as resp:
         history = [str(x.url) for x in resp.history]
         history.append(str(resp.url))
         return history
@@ -203,9 +204,10 @@ async def update_webrisk(url: str, session: aiohttp.client.ClientSession, pool: 
         ("uri", url),
         ("key", config.webrisk_key),
         ("threatTypes", "MALWARE"),
-        ("threatTypes", "SOCIAL_ENGINEERING")
+        ("threatTypes", "SOCIAL_ENGINEERING"),
+        ("threatTypes", "UNWANTED_SOFTWARE")
     ]
-    async with session.get("https://webrisk.googleapis.com/v1beta1/uris:search", params=params) as resp:
+    async with session.get("https://webrisk.googleapis.com/v1/uris:search", params=params) as resp:
         json_content: dict = await resp.json()
 
     if json_content.get("error"):

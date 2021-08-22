@@ -1,15 +1,17 @@
+import logging
+
 import aiohttp
 import asyncpg
-import api.helpers
-import api.checkers
 
-import logging
+import api.checkers
+import api.helpers
+from app.useragents import get_random_user_agent
 
 log = logging.getLogger(__name__)
 
 
 async def get_check_website(url: str, session: aiohttp.client.ClientSession, db: asyncpg.pool.Pool, fish: list):
-    async with session.get(url, allow_redirects=False) as resp:
+    async with session.get(url, allow_redirects=False, headers={"User-Agent": get_random_user_agent()}) as resp:
         status = resp.status
         headers = resp.headers
         text = await resp.text("utf-8")
