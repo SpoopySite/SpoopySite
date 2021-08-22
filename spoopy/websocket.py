@@ -99,9 +99,10 @@ async def ws_spoopy(request: sanic.request.Request, ws: websockets.legacy.protoc
             await ws.close()
 
         try:
-            status, location, safety, reasons, refresh_redirect, text, headers = await get_check_website(url, request.app.session,
-                                                                                          request.app.db,
-                                                                                          request.app.fish)
+            status, location, safety, reasons, refresh_redirect, text, headers = await get_check_website(url,
+                                                                                                         request.app.session,
+                                                                                                         request.app.db,
+                                                                                                         request.app.fish)
         except aiohttp.client_exceptions.ClientConnectorError:
             log.warning(f"Error connecting to {url} on WS")
             await ws.send(json.dumps({"error": f"Could not establish a connection to {url}"}))
