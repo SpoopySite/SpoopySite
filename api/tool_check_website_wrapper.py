@@ -6,6 +6,7 @@ import asyncpg
 import api.checkers
 import api.helpers
 from app.useragents import get_random_user_agent
+import tld
 
 log = logging.getLogger(__name__)
 
@@ -23,12 +24,13 @@ async def get_check_website(url: str, session: aiohttp.client.ClientSession, db:
     safety = True
 
     parsed_url = await api.helpers.url_splitter(url)
+    tld_parsed_url = tld.get_tld(url, as_object=True)
     hsts_check = await api.helpers.hsts_check(parsed_url.netloc, session, db)
     blacklist_check = await api.helpers.blacklist_check(parsed_url.netloc)
     webrisk_check = await api.helpers.webrisk_check(url, session, db)
     refresh_redirect = api.helpers.refresh_header_finder(text)
     cloudflare_check = await api.checkers.cloudflare.check(parsed_url.netloc)
-    luma_check = await api.checkers.luma.check(parsed_url.netloc, session)
+    luma_check = await api.checkers.luma.check(tld_parsed_url.fld, session)
 
     if blacklist_check:
         safety = False
