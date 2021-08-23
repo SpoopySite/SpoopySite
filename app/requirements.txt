@@ -1,4 +1,4 @@
-aiohttp==3.7.2
+aiohttp==3.7.4
 ruamel.yaml==0.16.12
 sanic==21.6.1
 requests==2.25.0
