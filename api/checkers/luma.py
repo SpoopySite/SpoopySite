@@ -30,6 +30,7 @@ def load() -> dict:
 
 
 async def check(url: str, session: aiohttp.client.ClientSession):
+    log.info(f"Luma checking: {url}")
     if os.path.isfile("luma.pickle"):
         json = load()
         if (json.get("fetch_time") + datetime.timedelta(minutes=1)) > datetime.datetime.now():

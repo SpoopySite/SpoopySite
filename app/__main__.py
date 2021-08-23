@@ -26,10 +26,19 @@ SOFTWARE.
 
 import asyncio
 
+import sentry_sdk
 import uvloop
+from sentry_sdk.integrations.sanic import SanicIntegration
+from sentry_sdk.integrations.aiohttp import AioHttpIntegration
 
 from . import Server
 from .logging import fix_access_log, setup_logging
+
+sentry_sdk.init(
+    dsn="https://a2ab246b56f34179a4e2d2d54f0597d7@o970585.ingest.sentry.io/5921973",
+    integrations=[SanicIntegration(), AioHttpIntegration()],
+    request_bodies="always"
+)
 
 asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 

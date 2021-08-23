@@ -43,7 +43,7 @@ async def ws_spoopy(request: sanic.request.Request, ws: websockets.legacy.protoc
             await ws.close()
 
         try:
-            status, location, safety, reasons, refresh_redirect, text, headers = await get_check_website(url,
+            status, location, safety, reasons, refresh_redirect, text, headers, hsts_check = await get_check_website(url,
                                                                                                          request.app.session,
                                                                                                          request.app.db,
                                                                                                          request.app.fish)
@@ -56,6 +56,11 @@ async def ws_spoopy(request: sanic.request.Request, ws: websockets.legacy.protoc
             log.warning(f"Error connect to {url} on WS due to error")
             log.error(err)
             await ws.send(json.dumps({"error": f"Could not support the protocol version that {url} uses"}))
+            await ws.close()
+            return
+        except Exception as err:
+            log.error(err)
+            await ws.send(json.dumps({"error": "Unknown error occurred. Please contact the devs"}))
             await ws.close()
             return
 
