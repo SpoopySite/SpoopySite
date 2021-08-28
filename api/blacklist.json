@@ -183,6 +183,10 @@
     "homophobe.fr": {
       "reason": "Homophobic",
       "source": "Internal"
+    },
+    "viaxbit.org": {
+      "reason": "Crypto Scam",
+      "source": "Internal"
     }
   }
 }
