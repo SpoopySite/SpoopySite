@@ -48,7 +48,7 @@ function Homepage() {
         <div align="center">
           <label className={classes.size} htmlFor="input">Check a link: </label>
           <input className={classes.size} id="input" type="text" value={spoopyURL} onKeyUp={goToSpoopy}
-                 onChange={handleChange}/>
+                 onChange={handleChange} autofocus={true} />
           <button className={classes.size} id="go" onClick={goToSpoopy} onKeyUp={goToSpoopy}>Go</button>
         </div>
       </Container>
