@@ -59,7 +59,7 @@ async def get_check_website(url: str, session: aiohttp.client.ClientSession, db:
 
     if luma_check:
         safety = False
-        reasons.append("Luma: Phishing Detection")
+        reasons.append("🐟🐠: Phishing Detection")
 
     location = headers.get("location")
     if not location:
