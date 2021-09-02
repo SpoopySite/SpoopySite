@@ -13,7 +13,7 @@ log = logging.getLogger(__name__)
 
 async def update(session: aiohttp.client.ClientSession) -> dict:
     log.info("Updating 🐟🐠")
-    async with session.get("https://http://api.phish.surf:5000/gimme-domains") as resp:
+    async with session.get("http://api.phish.surf:5000/gimme-domains") as resp:
         json_content: dict = await resp.json()
     return {"fetch_time": datetime.datetime.now(), "list": json_content}
 
