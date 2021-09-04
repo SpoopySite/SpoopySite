@@ -4,7 +4,7 @@ from urllib.parse import ParseResult, parse_qs
 import aiohttp
 import multidict
 
-from . import bitly, youtube, google, adfly, duckduckgo, justpasteit
+from . import bitly, youtube, google, adfly, duckduckgo, justpasteit, linkvertise
 
 log = logging.getLogger(__name__)
 
@@ -17,6 +17,7 @@ async def handlers(parsed: ParseResult, text: str, headers: multidict.CIMultiDic
     url = None
 
     query_parse = parse_qs(parsed.query)
+    log.info("Checking handlers")
 
     if "youtube.com" in parsed.netloc and parsed.path == "/redirect":
         check = youtube.youtube(parsed)
@@ -43,6 +44,10 @@ async def handlers(parsed: ParseResult, text: str, headers: multidict.CIMultiDic
             url = check
     elif "justpaste.it" in parsed.netloc and "redirect" in parsed.path:
         check = justpasteit.justpasteit(text)
+        if check:
+            url = check
+    elif parsed.netloc in linkvertise.linkvertise_domains():
+        check = await linkvertise.linkvertise(parsed, session)
         if check:
             url = check
 
