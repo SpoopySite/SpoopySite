@@ -4,7 +4,7 @@ from urllib.parse import ParseResult, parse_qs
 import aiohttp
 import multidict
 
-from . import bitly, youtube, google, adfly, duckduckgo
+from . import bitly, youtube, google, adfly, duckduckgo, justpasteit
 
 log = logging.getLogger(__name__)
 
@@ -14,7 +14,6 @@ async def handlers(parsed: ParseResult, text: str, headers: multidict.CIMultiDic
     youtube_check = False
     bitly_warning = False
     adfly_warning = False
-    duckduckgo_warning = False
     url = None
 
     query_parse = parse_qs(parsed.query)
@@ -42,6 +41,9 @@ async def handlers(parsed: ParseResult, text: str, headers: multidict.CIMultiDic
         check = await duckduckgo.duckduckgo(parsed, session)
         if check:
             url = check
-            duckduckgo_warning = True
+    elif "justpaste.it" in parsed.netloc and "redirect" in parsed.path:
+        check = justpasteit.justpasteit(text)
+        if check:
+            url = check
 
     return {"url": url, "youtube": youtube_check, "bitly": bitly_warning, "adfly": adfly_warning}
