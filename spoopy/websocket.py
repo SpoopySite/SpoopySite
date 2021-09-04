@@ -64,7 +64,7 @@ async def ws_spoopy(request: sanic.request.Request, ws: websockets.legacy.protoc
             await ws.close()
             return
 
-        handler_check = api.handlers.handlers.handlers(parsed, text, headers)
+        handler_check = await api.handlers.handlers.handlers(parsed, text, headers, request.app.session)
         if handler_check["url"]:
             url_pool.append(handler_check.get("url"))
             youtube_check = handler_check.get("youtube")

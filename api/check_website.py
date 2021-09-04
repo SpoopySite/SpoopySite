@@ -91,7 +91,7 @@ async def get_api_check_website(request):
             log.error(err)
             return sanic.response.json({"error": f"Could not support the protocol version that {redirect_url} uses"})
 
-        handler_check = api.handlers.handlers.handlers(parsed, text, headers)
+        handler_check = await api.handlers.handlers.handlers(parsed, text, headers, request.app.session)
 
         adfly = False
         bitly_warning = False

@@ -1,17 +1,23 @@
 import logging
-from urllib.parse import ParseResult
+from urllib.parse import ParseResult, parse_qs
+
+import aiohttp
 import multidict
 
-from . import bitly, youtube, google, adfly
+from . import bitly, youtube, google, adfly, duckduckgo
 
 log = logging.getLogger(__name__)
 
 
-def handlers(parsed: ParseResult, text: str, headers: multidict.CIMultiDictProxy):
+async def handlers(parsed: ParseResult, text: str, headers: multidict.CIMultiDictProxy,
+                   session: aiohttp.client.ClientSession):
     youtube_check = False
     bitly_warning = False
     adfly_warning = False
+    duckduckgo_warning = False
     url = None
+
+    query_parse = parse_qs(parsed.query)
 
     if "youtube.com" in parsed.netloc and parsed.path == "/redirect":
         check = youtube.youtube(parsed)
@@ -32,5 +38,10 @@ def handlers(parsed: ParseResult, text: str, headers: multidict.CIMultiDictProxy
         if check:
             url = check
             adfly_warning = True
+    elif "duckduckgo.com" in parsed.netloc and "q" in query_parse.keys():
+        check = await duckduckgo.duckduckgo(parsed, session)
+        if check:
+            url = check
+            duckduckgo_warning = True
 
     return {"url": url, "youtube": youtube_check, "bitly": bitly_warning, "adfly": adfly_warning}
