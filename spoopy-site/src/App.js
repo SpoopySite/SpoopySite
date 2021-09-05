@@ -6,6 +6,7 @@ import Footer from "./footer/Footer";
 import Docs from "./docs/Docs";
 import Faq from "./faq/Faq";
 import Header from "./header/Header";
+import About from "./about/About";
 import { createTheme, CssBaseline, ThemeProvider, useMediaQuery } from "@material-ui/core";
 import { getKeyWrapper } from "./utils";
 import { StyledEngineProvider } from "@material-ui/core/styles";
@@ -38,6 +39,7 @@ function App() {
             <Route path={"/site/:suspect_url"} children={<Spoopy/>}/>
             <Route path="/docs" children={<Docs/>}/>
             <Route path="/faq" children={<Faq/>}/>
+            <Route path="/about" children={<About/>}/>
             <Route exact-path="/" children={<Homepage/>}/>
           </Switch>
           <Footer/>

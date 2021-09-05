@@ -5,7 +5,7 @@ import clsx from "clsx";
 import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/styles";
 
-const useStyles = makeStyles({
+const useStyles = makeStyles(styles =>({
   footer: {
     bottom: 0,
     position: "fixed",
@@ -14,7 +14,8 @@ const useStyles = makeStyles({
     paddingBottom: "0.5em",
     borderTop: "3px solid lightslategray",
     fontSize: "20px",
-    textAlign: "center"
+    textAlign: "center",
+    backgroundColor: styles.palette.background.default
   },
   p: {
     padding: 0,
@@ -27,7 +28,7 @@ const useStyles = makeStyles({
   inspiration: {
     fontSize: "15px"
   }
-});
+}));
 
 function Footer() {
   const classes = useStyles();
@@ -38,6 +39,7 @@ function Footer() {
         <Link component={RouterLink} className={classes.a} to="/docs">Docs</Link>
         <Link component={RouterLink} className={classes.a} to="/faq">FAQ</Link>
         <Link href="https://github.com/Lagicrus/spoopy-python">GitHub</Link>
+        <Link component={RouterLink} className={classes.a} to="/about">About</Link>
       </p>
       <Typography className={clsx(classes.p, classes.inspiration)}>
         Inspired by <Link href="https://github.com/spoopy-link/server">spoopy link</Link>
