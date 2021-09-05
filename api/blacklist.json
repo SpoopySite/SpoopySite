@@ -187,6 +187,10 @@
     "viaxbit.org": {
       "reason": "Crypto Scam",
       "source": "Internal"
+    },
+    "dlscordnitro.ru.com": {
+      "reason": "Discord Scam",
+      "source": "Internal"
     }
   }
 }
