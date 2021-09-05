@@ -149,6 +149,7 @@ class Server:
         app.static("/site", "./spoopy-site/build/index.html")
         app.static("/docs", "./spoopy-site/build/index.html")
         app.static("/faq", "./spoopy-site/build/index.html")
+        app.static("/about", "./spoopy-site/build/index.html")
         app.static("/robots.txt", "./spoopy-site/robots.txt")
 
         app.error_handler.add(sanic.exceptions.NotFound, ignore_404s)
