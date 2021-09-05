@@ -1,11 +1,12 @@
-import re
 import datetime
 import json
 import logging
+import re
 from urllib.parse import urlparse
 
 import aiohttp
 import asyncpg
+import tld
 import validators.url
 from bs4 import BeautifulSoup
 
@@ -137,7 +138,7 @@ async def open_blacklist():
 
 async def blacklist_check(url: str):
     blacklist = await open_blacklist()
-    url = ".".join(url.split(".")[-2:])
+    url = tld.get_fld(url, fix_protocol=True)
     if url in blacklist["blacklist"]:
         return blacklist["blacklist"][url]
     else:
