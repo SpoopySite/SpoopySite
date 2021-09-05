@@ -16,14 +16,32 @@ const useStyles = makeStyles({
     },
     marginTop: "0 !important",
     marginBottom: "0 !important"
+  },
+  ghost: {
+    margin: "0 auto",
+    width: "min-content"
   }
 });
+
+const spoopyGhost =
+  `     ████
+   ████████
+  █▓▓████▓▓█
+ █▒▓▓▒██▒▓▓▒█
+ █▒▒▒▒██▒▒▒▒█
+ █▒▒▒▒██▒▒▒▒█
+███▒▒████▒▒███
+██████████████
+██████████████
+██ ███  ███ ██
+█   ██  ██   █  - SuperFromNotDiscord`
 
 function About() {
   const classes = useStyles();
 
   return (
     <BottomPaddingContainer>
+      <pre className={classes.ghost}>{spoopyGhost}</pre>
       <Typography variant="h4" component="h1" gutterBottom>About</Typography>
       <Typography variant="h5" component="h2" gutterBottom>Inspiration</Typography>
       <Typography variant="body1">
