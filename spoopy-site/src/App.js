@@ -1,15 +1,33 @@
-import React, { useMemo, useState } from "react";
+import React, { lazy, Suspense, useMemo, useState } from "react";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
-import Homepage from "./homepage/Homepage";
 import Spoopy from "./spoopy/Spoopy";
 import Footer from "./footer/Footer";
-import Docs from "./docs/Docs";
-import Faq from "./faq/Faq";
 import Header from "./header/Header";
-import About from "./about/About";
 import { createTheme, CssBaseline, ThemeProvider, useMediaQuery } from "@material-ui/core";
 import { getKeyWrapper } from "./utils";
 import { StyledEngineProvider } from "@material-ui/core/styles";
+import CenterLoading from "./components/centerLoading";
+
+function lazyLoadRetry(fn, retriesLeft = 5, interval = 1000) {
+  return new Promise((resolve, reject) => {
+    fn()
+      .then(resolve)
+      .catch(() => {
+        setTimeout(() => {
+          if (retriesLeft === 1) {
+            window.location.reload();
+          }
+
+          lazyLoadRetry(fn, retriesLeft - 1, interval).then(resolve, reject);
+        }, interval);
+      });
+  });
+}
+
+const Homepage = lazy(() => lazyLoadRetry(() => import(/* webpackChunkName: "hP" */ "./homepage/Homepage")));
+const About = lazy(() => lazyLoadRetry(() => import(/* webpackChunkName: "aP" */ "./about/About")));
+const Faq = lazy(() => lazyLoadRetry(() => import(/* webpackChunkName: "fP" */ "./faq/Faq")));
+const Docs = lazy(() => lazyLoadRetry(() => import(/* webpackChunkName: "dP" */ "./docs/Docs")));
 
 function App() {
   const [, handleReload] = useState(0);
@@ -37,10 +55,26 @@ function App() {
           <Header theme={theme.palette.mode} handleReload={handleReload}/>
           <Switch>
             <Route path={"/site/:suspect_url"} children={<Spoopy/>}/>
-            <Route path="/docs" children={<Docs/>}/>
-            <Route path="/faq" children={<Faq/>}/>
-            <Route path="/about" children={<About/>}/>
-            <Route exact-path="/" children={<Homepage/>}/>
+            <Route path="/docs">
+              <Suspense fallback={<CenterLoading/>}>
+                <Docs/>
+              </Suspense>
+            </Route>
+            <Route path="/faq">
+              <Suspense fallback={<CenterLoading/>}>
+                <Faq/>
+              </Suspense>
+            </Route>
+            <Route path="/about">
+              <Suspense fallback={<CenterLoading/>}>
+                <About/>
+              </Suspense>
+            </Route>
+            <Route exact-path="/">
+              <Suspense fallback={<CenterLoading/>}>
+                <Homepage/>
+              </Suspense>
+            </Route>
           </Switch>
           <Footer/>
         </ThemeProvider>

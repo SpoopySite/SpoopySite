@@ -36,6 +36,9 @@
   },
   "devDependencies": {
     "prettier": "^2.3.2",
-    "react-scripts": "^4.0.3"
+    "react-scripts": "^4.0.3",
+    "webpack-bundle-analyzer": "^4.4.2",
+    "progress-bar-webpack-plugin": "^2.1.0",
+    "chalk": "^4.1.2"
   }
 }
