@@ -2,9 +2,9 @@ import React, { Component } from "react";
 import { withRouter } from "react-router-dom";
 import SpoopyMessage from "../spoopy-message/Spoopy-Message";
 import Spinner from "../spinner/Spinner";
-import Container from "@material-ui/core/Container";
-import Typography from "@material-ui/core/Typography";
-import List from "@material-ui/core/List";
+import Container from "@mui/material/Container";
+import Typography from "@mui/material/Typography";
+import List from "@mui/material/List";
 
 class Spoopy extends Component {
   constructor(props) {

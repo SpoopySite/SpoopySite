@@ -1,9 +1,9 @@
 import React from "react";
 import { Link as RouterLink } from "react-router-dom";
-import { Link } from "@material-ui/core";
+import { Link } from "@mui/material";
 import clsx from "clsx";
-import Typography from "@material-ui/core/Typography";
-import { makeStyles } from "@material-ui/styles";
+import Typography from "@mui/material/Typography";
+import { makeStyles } from "@mui/styles";
 
 const useStyles = makeStyles(styles =>({
   footer: {

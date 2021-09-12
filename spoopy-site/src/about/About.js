@@ -1,10 +1,10 @@
 import React from "react";
-import Typography from "@material-ui/core/Typography";
-import Link from "@material-ui/core/Link";
-import ListItem from "@material-ui/core/ListItem";
-import ListItemText from "@material-ui/core/ListItemText";
-import List from "@material-ui/core/List";
-import { makeStyles } from "@material-ui/styles";
+import Typography from "@mui/material/Typography";
+import Link from "@mui/material/Link";
+import ListItem from "@mui/material/ListItem";
+import ListItemText from "@mui/material/ListItemText";
+import List from "@mui/material/List";
+import { makeStyles } from "@mui/styles";
 import BottomPaddingContainer from "../components/BottomPaddingContainer";
 
 const useStyles = makeStyles({

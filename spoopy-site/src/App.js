@@ -3,10 +3,10 @@ import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import Spoopy from "./spoopy/Spoopy";
 import Footer from "./footer/Footer";
 import Header from "./header/Header";
-import { createTheme, CssBaseline, ThemeProvider, useMediaQuery } from "@material-ui/core";
+import { adaptV4Theme, createTheme, CssBaseline, ThemeProvider, useMediaQuery } from "@mui/material";
 import { getKeyWrapper } from "./utils";
-import { StyledEngineProvider } from "@material-ui/core/styles";
 import CenterLoading from "./components/centerLoading";
+import {StyledEngineProvider} from "@mui/material/styles"
 
 function lazyLoadRetry(fn, retriesLeft = 5, interval = 1000) {
   return new Promise((resolve, reject) => {
@@ -39,11 +39,11 @@ function App() {
 
   const theme = useMemo(
     () =>
-      createTheme({
+      createTheme(adaptV4Theme({
         palette: {
           mode: prefersDarkMode ? "dark" : "light"
         }
-      }),
+      })),
     [prefersDarkMode]
   );
 

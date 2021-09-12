@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect, useState } from "react";
-import Switch from "@material-ui/core/Switch";
+import Switch from "@mui/material/Switch";
 import PropTypes from "prop-types";
-import Typography from "@material-ui/core/Typography";
-import Grid from "@material-ui/core/Grid";
-import { makeStyles } from "@material-ui/styles";
+import Typography from "@mui/material/Typography";
+import Grid from "@mui/material/Grid";
+import { makeStyles } from "@mui/styles";
 
 const useStyles = makeStyles({
   themeSwitch: {

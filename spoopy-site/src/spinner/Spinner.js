@@ -1,7 +1,7 @@
 import React from "react";
 import "./Spinner.css";
 import clsx from "clsx";
-import { makeStyles } from "@material-ui/styles";
+import { makeStyles } from "@mui/styles";
 
 const useStyles = makeStyles({
   spinner: {

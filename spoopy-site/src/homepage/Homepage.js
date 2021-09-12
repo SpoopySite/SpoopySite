@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { Redirect } from "react-router-dom";
-import Container from "@material-ui/core/Container";
-import Typography from "@material-ui/core/Typography";
-import { makeStyles } from "@material-ui/styles";
+import Container from "@mui/material/Container";
+import Typography from "@mui/material/Typography";
+import { makeStyles } from "@mui/styles";
 
 const useStyles = makeStyles({
   wrapper: {
