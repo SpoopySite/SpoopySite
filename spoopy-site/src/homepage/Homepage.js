@@ -13,6 +13,12 @@ const useStyles = makeStyles({
   },
   size: {
     fontSize: "1.3rem"
+  },
+  inputDiv: {
+    paddingTop: 3,
+    "& button": {
+      marginLeft: 5
+    }
   }
 })
 
@@ -45,7 +51,7 @@ function Homepage() {
       <Container className={classes.wrapper}>
         <Typography variant="h3" component="h1" align="center">Spoopy Website Detector</Typography>
         <Typography variant="h5" component="h2" align="center">Checks how risky a website is by checking for IP Logging, Phishing, Malware and more.</Typography>
-        <div align="center">
+        <div align="center" className={classes.inputDiv}>
           <label className={classes.size} htmlFor="input">Check a link: </label>
           <input className={classes.size} id="input" type="text" value={spoopyURL} onKeyUp={goToSpoopy}
                  onChange={handleChange} autoFocus={true} />
