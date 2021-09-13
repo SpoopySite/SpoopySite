@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect, useState } from "react";
-import Switch from "@mui/material/Switch";
 import PropTypes from "prop-types";
-import Typography from "@mui/material/Typography";
-import Grid from "@mui/material/Grid";
 import { makeStyles } from "@mui/styles";
+import Stack from "@mui/material/Stack";
+import Typography from "@mui/material/Typography";
+import Switch from "@mui/material/Switch";
 
 const useStyles = makeStyles({
   themeSwitch: {
@@ -25,14 +25,14 @@ function changeItem(event, value, key, reloadWrapper) {
 function Header({ theme, handleReload }) {
   const [checkedC, setCheckedC] = useState(true);
   const classes = useStyles();
-    const handleReloadWrapper = useCallback(
+  const handleReloadWrapper = useCallback(
     (randomInt) => handleReload(randomInt),
     [handleReload]
   );
 
   useEffect(() => {
     if (theme === "dark") {
-      setCheckedC(false)
+      setCheckedC(false);
     }
   }, [checkedC, theme]);
 
@@ -45,25 +45,15 @@ function Header({ theme, handleReload }) {
   return (
     <header>
       <div className={classes.themeSwitch}>
-        <Grid component="label" container alignItems="center" spacing={1}>
-          <Grid item>
-            <Typography>
-              Dark Mode
-            </Typography>
-          </Grid>
-          <Grid item>
-            <Switch
-              checked={checkedC}
-              onChange={handleChange}
-              color="default"
-            />
-          </Grid>
-          <Grid item>
-            <Typography>
-              Light Mode
-            </Typography>
-          </Grid>
-        </Grid>
+        <Stack direction="row" spacing={1} alignItems="center">
+          <Typography>Dark Mode</Typography>
+          <Switch
+            checked={checkedC}
+            onChange={handleChange}
+            color="default"
+          />
+          <Typography>Light Mode</Typography>
+        </Stack>
       </div>
     </header>
   );
