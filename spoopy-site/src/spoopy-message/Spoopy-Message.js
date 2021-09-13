@@ -4,6 +4,8 @@ import PropTypes from "prop-types";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
 import { makeStyles } from "@mui/styles";
+import ListItemAvatar from "@mui/material/ListItemAvatar";
+import Avatar from "@mui/material/Avatar";
 
 const useStyles = makeStyles({
   results: {
@@ -57,7 +59,10 @@ function SpoopyMessage({ data }) {
     );
   } else {
     return (
-      <ListItem className={classes.results}>
+      <ListItem className={classes.results} alignItems="flex-start">
+        <ListItemAvatar>
+          <Avatar sx={{ width: 32, height: 32 }} src={`https://www.google.com/s2/favicons?domain=${url}&sz=32`}/>
+        </ListItemAvatar>
         <ListItemText
           primary={`${url} ${safety ? "\u2714" : "\u274c"}`}
           secondary={reasons.join(", ")}
