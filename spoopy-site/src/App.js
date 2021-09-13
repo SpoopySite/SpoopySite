@@ -6,7 +6,6 @@ import Header from "./header/Header";
 import { createTheme, CssBaseline, ThemeProvider, useMediaQuery } from "@mui/material";
 import { getKeyWrapper } from "./utils";
 import CenterLoading from "./components/centerLoading";
-import { StyledEngineProvider } from "@mui/material/styles";
 
 function lazyLoadRetry(fn, retriesLeft = 5, interval = 1000) {
   return new Promise((resolve, reject) => {
@@ -49,36 +48,34 @@ function App() {
 
   return (
     <Router>
-      <StyledEngineProvider>
-        <ThemeProvider theme={theme}>
-          <CssBaseline/>
-          <Header theme={theme.palette.mode} handleReload={handleReload}/>
-          <Switch>
-            <Route path={"/site/:suspect_url"} children={<Spoopy/>}/>
-            <Route path="/docs">
-              <Suspense fallback={<CenterLoading/>}>
-                <Docs/>
-              </Suspense>
-            </Route>
-            <Route path="/faq">
-              <Suspense fallback={<CenterLoading/>}>
-                <Faq/>
-              </Suspense>
-            </Route>
-            <Route path="/about">
-              <Suspense fallback={<CenterLoading/>}>
-                <About/>
-              </Suspense>
-            </Route>
-            <Route exact-path="/">
-              <Suspense fallback={<CenterLoading/>}>
-                <Homepage/>
-              </Suspense>
-            </Route>
-          </Switch>
-          <Footer/>
-        </ThemeProvider>
-      </StyledEngineProvider>
+      <ThemeProvider theme={theme}>
+        <CssBaseline/>
+        <Header theme={theme.palette.mode} handleReload={handleReload}/>
+        <Switch>
+          <Route path={"/site/:suspect_url"} children={<Spoopy/>}/>
+          <Route path="/docs">
+            <Suspense fallback={<CenterLoading/>}>
+              <Docs/>
+            </Suspense>
+          </Route>
+          <Route path="/faq">
+            <Suspense fallback={<CenterLoading/>}>
+              <Faq/>
+            </Suspense>
+          </Route>
+          <Route path="/about">
+            <Suspense fallback={<CenterLoading/>}>
+              <About/>
+            </Suspense>
+          </Route>
+          <Route exact-path="/">
+            <Suspense fallback={<CenterLoading/>}>
+              <Homepage/>
+            </Suspense>
+          </Route>
+        </Switch>
+        <Footer/>
+      </ThemeProvider>
     </Router>
   );
 }
