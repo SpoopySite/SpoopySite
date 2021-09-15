@@ -191,6 +191,10 @@
     "dlscordnitro.ru.com": {
       "reason": "Discord Scam",
       "source": "Internal"
+    },
+    "cryptoxan.com": {
+      "reason": "Crypto Scam",
+      "source": "Internal"
     }
   }
 }
