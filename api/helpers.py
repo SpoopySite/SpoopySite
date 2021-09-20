@@ -50,6 +50,8 @@ def refresh_header_finder(text: str):
                 content = meta_tag.attrs.get("content")
                 if "URL=" in content:
                     return re.search("URL(.*)", content).group(1)[1:]
+                elif "url=" in content:
+                    return re.search("url(.*)", content).group(1)[1:]
 
 
 async def redirect_gatherer(url: str, session: aiohttp.client.ClientSession):
