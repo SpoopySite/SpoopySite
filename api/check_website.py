@@ -32,7 +32,7 @@ async def get_api_check_website(request):
         )
         return sanic.response.json({"error": error}, status=400)
 
-    if not await api.helpers.validate_url(search_query):
+    if not api.helpers.validate_url(search_query):
         return sanic.response.json({"status": "Invalid URL"},
                                    status=400)
 
@@ -82,7 +82,7 @@ async def get_api_check_website(request):
                                            request.app.session,
                                            request.app.db,
                                            request.app.fish)
-            status, location, safety, reasons, refresh_redirect, text, headers, hsts_check = data
+            status, location, safety, reasons, refresh_redirect, text, headers, hsts_check, js_redirect = data
         except aiohttp.client_exceptions.ClientConnectorError:
             log.warning(f"Error connecting to {redirect_url} on API")
             return sanic.response.json({"error": f"Could not establish a connection to {redirect_url}"})
@@ -115,6 +115,12 @@ async def get_api_check_website(request):
             checks["urls"][redirect_url]["youtube"] = "Youtube detected"
         if bitly_warning:
             checks["urls"][redirect_url]["Bitly"] = "Bitly detected"
+
+        if refresh_redirect:
+            redirects.append(refresh_redirect)
+
+        if js_redirect:
+            redirects.append(js_redirect)
 
         # parsed_url = await api.helpers.url_splitter(redirect_url)
         # phishtank_check = await api.helpers.parse_phistank(url, request.app.fish)

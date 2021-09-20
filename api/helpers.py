@@ -8,13 +8,34 @@ import aiohttp
 import asyncpg
 import tld
 import validators.url
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, element
 
 from app.config import Config
 from app.useragents import get_random_user_agent
 
 config = Config.from_file()
 log = logging.getLogger(__name__)
+
+
+def js_script_check(text: str):
+    soup = BeautifulSoup(text, features="html.parser")
+    if not soup.script:
+        return
+
+    def script_finder(tag: element.Tag):
+        if tag.name == "script":
+            return "window.location.replace" in ",".join(tag.contents)
+        return False
+
+    script_search: list = soup.find_all(script_finder)
+    if len(script_search) > 0:
+        script_search: str = str(script_search[0])
+        regex_search = re.search("window\.location\.replace\(\'(.*)\'\)", script_search)
+        log.info(regex_search)
+        log.info(regex_search.group(1))
+
+        if validate_url(regex_search.group(1)):
+            return regex_search.group(1)
 
 
 def refresh_header_finder(text: str):
@@ -38,7 +59,7 @@ async def redirect_gatherer(url: str, session: aiohttp.client.ClientSession):
         return history
 
 
-async def validate_url(url: str):
+def validate_url(url: str):
     a = validators.url(url)
     if not isinstance(a, validators.ValidationFailure):
         return True
