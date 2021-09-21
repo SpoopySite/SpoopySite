@@ -82,7 +82,7 @@ async def get_api_check_website(request):
                                            request.app.session,
                                            request.app.db,
                                            request.app.fish)
-            status, location, safety, reasons, refresh_redirect, text, headers, hsts_check, js_redirect = data
+            status, location, safety, reasons, refresh_redirect, text, headers, hsts_check, js_redirect, query_redirect = data
         except aiohttp.client_exceptions.ClientConnectorError:
             log.warning(f"Error connecting to {redirect_url} on API")
             return sanic.response.json({"error": f"Could not establish a connection to {redirect_url}"})
@@ -121,6 +121,9 @@ async def get_api_check_website(request):
 
         if js_redirect:
             redirects.append(js_redirect)
+
+        if query_redirect:
+            redirects.append(query_redirect)
 
         # parsed_url = await api.helpers.url_splitter(redirect_url)
         # phishtank_check = await api.helpers.parse_phistank(url, request.app.fish)

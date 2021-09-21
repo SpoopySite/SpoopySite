@@ -32,6 +32,7 @@ async def get_check_website(url: str, session: aiohttp.client.ClientSession, db:
     cloudflare_check = await api.checkers.cloudflare.check(parsed_url.netloc)
     luma_check = await api.checkers.luma.check(tld_parsed_url.fld, session)
     js_redirect = api.helpers.js_script_check(text)
+    query_redirect = api.helpers.query_redirect(parsed_url)
 
     if blacklist_check:
         safety = False
@@ -66,4 +67,4 @@ async def get_check_website(url: str, session: aiohttp.client.ClientSession, db:
     if not location:
         location = headers.get("Location")
 
-    return status, location, safety, reasons, refresh_redirect, text, headers, hsts_check, js_redirect
+    return status, location, safety, reasons, refresh_redirect, text, headers, hsts_check, js_redirect, query_redirect

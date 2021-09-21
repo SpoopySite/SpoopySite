@@ -2,7 +2,7 @@ import datetime
 import json
 import logging
 import re
-from urllib.parse import urlparse
+from urllib.parse import urlparse, ParseResult, parse_qs
 
 import aiohttp
 import asyncpg
@@ -15,6 +15,14 @@ from app.useragents import get_random_user_agent
 
 config = Config.from_file()
 log = logging.getLogger(__name__)
+
+
+def query_redirect(url: ParseResult):
+    if url.path == "/redirect.html":
+        qs_values = sum(dict(parse_qs(url.query).items()).values(), [])
+        if len(qs_values) > 0:
+            if validate_url(qs_values[0]):
+                return qs_values[0]
 
 
 def js_script_check(text: str):
@@ -33,8 +41,6 @@ def js_script_check(text: str):
         regex_search = re.search("window\.location\.replace\(\'(.*)\'\)", script_search)
         if not regex_search:
             return
-        log.info(regex_search)
-        log.info(regex_search.group(1))
 
         if validate_url(regex_search.group(1)):
             return regex_search.group(1)
