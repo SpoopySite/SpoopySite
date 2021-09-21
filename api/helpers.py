@@ -31,6 +31,8 @@ def js_script_check(text: str):
     if len(script_search) > 0:
         script_search: str = str(script_search[0])
         regex_search = re.search("window\.location\.replace\(\'(.*)\'\)", script_search)
+        if not regex_search:
+            return
         log.info(regex_search)
         log.info(regex_search.group(1))
 
