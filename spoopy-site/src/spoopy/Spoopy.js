@@ -69,6 +69,7 @@ class Spoopy extends Component {
             component="h1"
             align="center"
             id="header"
+            style={{wordBreak: "break-word"}}
           >
             {decodeURIComponent(this.props.match.params.suspect_url)}
           </Typography>
