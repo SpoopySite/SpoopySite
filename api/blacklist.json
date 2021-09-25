@@ -195,6 +195,10 @@
     "cryptoxan.com": {
       "reason": "Crypto Scam",
       "source": "Internal"
+    },
+    "official-nitro.com": {
+      "reason": "Nitro Scam",
+      "source": "Internal"
     }
   }
 }
