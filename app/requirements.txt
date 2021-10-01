@@ -1,6 +1,6 @@
 aiohttp==3.7.4
 ruamel.yaml==0.16.12
-sanic==21.6.1
+sanic==21.9.0
 requests==2.25.0
 validators==0.18.1
 asyncpg==0.21.0
