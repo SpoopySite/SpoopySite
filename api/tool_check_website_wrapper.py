@@ -12,10 +12,13 @@ log = logging.getLogger(__name__)
 
 
 async def get_check_website(url: str, session: aiohttp.client.ClientSession, db: asyncpg.pool.Pool, fish: list):
+    text = None
+
     async with session.get(url, allow_redirects=False, headers={"User-Agent": get_random_user_agent()}) as resp:
         status = resp.status
         headers = resp.headers
-        text = await resp.text("utf-8")
+        if not headers.get("Content-Type").startswith("image"):
+            text = await resp.text("utf-8")
         resp.close()
 
     log.info(f"Status: {status}")
@@ -28,11 +31,16 @@ async def get_check_website(url: str, session: aiohttp.client.ClientSession, db:
     hsts_check = await api.helpers.hsts_check(parsed_url.netloc, session, db)
     blacklist_check = await api.helpers.blacklist_check(parsed_url.netloc)
     webrisk_check = await api.helpers.webrisk_check(url, session, db)
-    refresh_redirect = api.helpers.refresh_header_finder(text)
     cloudflare_check = await api.checkers.cloudflare.check(parsed_url.netloc)
     luma_check = await api.checkers.luma.check(tld_parsed_url.fld, session)
-    js_redirect = api.helpers.js_script_check(text)
     query_redirect = api.helpers.query_redirect(parsed_url)
+
+    if text is not None:
+        refresh_redirect = api.helpers.refresh_header_finder(text)
+        js_redirect = api.helpers.js_script_check(text)
+    else:
+        refresh_redirect = None
+        js_redirect = None
 
     if blacklist_check:
         safety = False
