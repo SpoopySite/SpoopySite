@@ -54,7 +54,7 @@ def refresh_header_finder(text: str):
     http_equiv = [x.attrs.get("http-equiv") for x in meta]
     if any(http_equiv):
         for meta_tag in meta:
-            if meta_tag.attrs.get("http-equiv").lower() == "refresh":
+            if meta_tag.attrs.get("http-equiv", "").lower() == "refresh":
                 content = meta_tag.attrs.get("content")
                 log.info(content)
                 return re.search("""(?:\d+;\s?)?(?:[uU][rR][lL]=)?(['"])?(?P<url>.+)(?(1)['"]|)""", content).groupdict()["url"]
