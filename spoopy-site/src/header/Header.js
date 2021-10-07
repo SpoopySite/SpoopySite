@@ -1,18 +1,11 @@
 import React, { useCallback, useEffect, useState } from "react";
 import PropTypes from "prop-types";
-import { makeStyles } from "@mui/styles";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import Switch from "@mui/material/Switch";
-
-const useStyles = makeStyles({
-  themeSwitch: {
-    right: 0,
-    width: "auto",
-    display: "inline-block",
-    position: "fixed"
-  }
-});
+import Toolbar from "@mui/material/Toolbar";
+import AppBar from "@mui/material/AppBar";
+import Box from "@mui/material/Box";
 
 function changeItem(event, value, key, reloadWrapper) {
   if (value == null) {
@@ -24,7 +17,6 @@ function changeItem(event, value, key, reloadWrapper) {
 
 function Header({ theme, handleReload }) {
   const [checkedC, setCheckedC] = useState(true);
-  const classes = useStyles();
   const handleReloadWrapper = useCallback(
     (randomInt) => handleReload(randomInt),
     [handleReload]
@@ -44,17 +36,21 @@ function Header({ theme, handleReload }) {
 
   return (
     <header>
-      <div className={classes.themeSwitch}>
-        <Stack direction="row" spacing={1} alignItems="center">
-          <Typography>Dark Mode</Typography>
-          <Switch
-            checked={checkedC}
-            onChange={handleChange}
-            color="default"
-          />
-          <Typography>Light Mode</Typography>
-        </Stack>
-      </div>
+      <Box sx={{ flexGrow: 1 }}>
+        <AppBar position="static" color="transparent">
+          <Toolbar sx={{justifyContent: "flex-end"}}>
+            <Stack direction="row" spacing={1} alignItems="center">
+              <Typography>Dark Mode</Typography>
+              <Switch
+                checked={checkedC}
+                onChange={handleChange}
+                color="default"
+              />
+              <Typography>Light Mode</Typography>
+            </Stack>
+          </Toolbar>
+        </AppBar>
+      </Box>
     </header>
   );
 }
