@@ -49,6 +49,6 @@
     "prettier": "^2.4.1",
     "progress-bar-webpack-plugin": "^2.1.0",
     "react-scripts": "^4.0.3",
-    "webpack-bundle-analyzer": "^4.4.2"
+    "webpack-bundle-analyzer": "^4.5.0"
   }
 }
