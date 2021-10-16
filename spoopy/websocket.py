@@ -5,7 +5,6 @@ from urllib.parse import ParseResult
 
 import aiohttp.client
 import aiohttp.client_exceptions
-import sanic.request
 import sanic.response
 import websockets.legacy.protocol
 from sanic import Blueprint
@@ -14,6 +13,7 @@ import api.checkers.cloudflare
 import api.checkers.luma
 import api.handlers.handlers
 import api.helpers
+from api.handlers.handler_exceptions import Linkvertise
 from api.tool_check_website_wrapper import get_check_website
 
 bp = Blueprint("spoopy_websocket")
@@ -62,7 +62,13 @@ async def ws_spoopy(request: sanic.request.Request, ws: websockets.legacy.protoc
             await ws.close()
             return
 
-        handler_check = await api.handlers.handlers.handlers(parsed, text, headers, request.app.session)
+        try:
+            handler_check = await api.handlers.handlers.handlers(parsed, text, headers, request.app.session)
+        except Linkvertise as e:
+            await ws.send(json.dumps({"error": str(e)}))
+            await ws.close()
+            return
+
         if handler_check["url"]:
             url_pool.append(handler_check.get("url"))
             youtube_check = handler_check.get("youtube")

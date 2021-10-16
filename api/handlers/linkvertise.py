@@ -1,11 +1,12 @@
-import time
+import base64
 import json
 import logging
-from urllib.parse import ParseResult
-import base64
+import time
+from urllib.parse import ParseResult, urlunparse
 
 import aiohttp
 
+from api.handlers.handler_exceptions import Linkvertise
 from app.useragents import get_random_user_agent
 
 log = logging.getLogger(__name__)
@@ -18,9 +19,25 @@ def linkvertise_domains():
 
 
 async def get_link_id(parsed: ParseResult, session: aiohttp.client.ClientSession):
-    async with session.get(f"https://publisher.linkvertise.com/api/v1/redirect/link/static/{parsed.path}/", headers={"User-Agent": get_random_user_agent()}) as resp:
+    url = parsed.path
+    url = url.lstrip("/")
+    url = url.rstrip("/")
+
+    headers = {
+        "accept": "application/json",
+        "user-agent": get_random_user_agent(),
+        "referer": "https://linkvertise.com/",
+        "origin": "https://linkvertise.com",
+    }
+
+    async with session.get(f"https://publisher.linkvertise.com/api/v1/redirect/link/static/{url}",
+                           headers=headers,
+                           allow_redirects=False
+                           ) as resp:
         json_content: dict = await resp.json()
-    return json_content["data"]["link"]["id"]
+    if json_content["success"]:
+        return json_content["data"]["link"]["id"]
+    raise Linkvertise(f"Got errors from {urlunparse(parsed)}: {', '.join(json_content['messages'])}")
 
 
 def get_serial(link_id: int):
