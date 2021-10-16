@@ -1,11 +1,13 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { lazy } from "react";
 import PropTypes from "prop-types";
 import ListItem from "@mui/material/ListItem";
-import ListItemText from "@mui/material/ListItemText";
 import { makeStyles } from "@mui/styles";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
 import Avatar from "@mui/material/Avatar";
+import { ListItemText } from "@mui/material";
+import { Adfly } from "./warningMessages";
+
+const { Youtube, Bitly } = lazy(() => import(/* webpackChunkName: "wM" */ "./warningMessages"));
 
 const useStyles = makeStyles({
   results: {
@@ -19,57 +21,63 @@ const useStyles = makeStyles({
   }
 });
 
+function SpoopyMessageResults({ error, youtube, url, bitly_warning, adfly, safety, reasons }) {
+  if (error) {
+    return (
+      <ListItemText primary={error}/>
+    );
+  } else if (youtube) {
+    return (
+      <Youtube url={url}/>
+    );
+  } else if (bitly_warning) {
+    return (
+      <Bitly url={url}/>
+    );
+  } else if (adfly) {
+    return (
+      <Adfly url={url} safety={safety}/>
+    );
+  } else {
+    return (
+      <ListItemText
+        primary={`${url} ${safety ? "\u2714" : "\u274c"}`}
+        secondary={reasons.join(", ")}
+      />
+    );
+  }
+}
+
+SpoopyMessageResults.propTypes = {
+  error: PropTypes.bool,
+  youtube: PropTypes.bool.isRequired,
+  url: PropTypes.string.isRequired,
+  bitly_warning: PropTypes.bool.isRequired,
+  adfly: PropTypes.bool.isRequired,
+  safety: PropTypes.bool.isRequired,
+  reasons: PropTypes.arrayOf(PropTypes.string).isRequired
+};
+
 function SpoopyMessage({ data }) {
   const { url, safety, reasons, error, youtube, bitly_warning, adfly } = data;
   const classes = useStyles();
 
-  if (error) {
-    return (
-      <ListItem className={classes.errorResults}>
-        <ListItemText primary={error}/>
-      </ListItem>
-    );
-  } else if (youtube) {
-    return (
-      <ListItem className={classes.results}>
-        <ListItemText
-          primary={`${url} \u2714`}
-          secondary={<>This link was a guess. You can read more <Link to="/faq#Youtube\">here</Link></>}
-        />
-      </ListItem>
-    );
-  } else if (bitly_warning) {
-    return (
-      <ListItem className={classes.results}>
-        <ListItemText
-          primary={`${url} \u274c`}
-          secondary={<>Bitly does not recommend visiting the next link.
-            You can read more <Link to="/faq#BitlyWarnings">here</Link></>}
-        />
-      </ListItem>
-    );
-  } else if (adfly) {
-    return (
-      <ListItem className={classes.results}>
-        <ListItemText
-          primary={`${url} ${safety ? "\u2714" : "\u274c"}`}
-          secondary="Known Adfly Domain"
-        />
-      </ListItem>
-    );
-  } else {
-    return (
-      <ListItem className={classes.results} alignItems="flex-start">
-        <ListItemAvatar>
-          <Avatar sx={{ width: 32, height: 32 }} src={`https://www.google.com/s2/favicons?domain=${url}&sz=32`}/>
-        </ListItemAvatar>
-        <ListItemText
-          primary={`${url} ${safety ? "\u2714" : "\u274c"}`}
-          secondary={reasons.join(", ")}
-        />
-      </ListItem>
-    );
-  }
+  return (
+    <ListItem className={error ? classes.errorResults : classes.results} alignItems="flex-start">
+      <ListItemAvatar>
+        <Avatar sx={{ width: 32, height: 32 }} src={`https://www.google.com/s2/favicons?domain=${url}&sz=32`}/>
+      </ListItemAvatar>
+      <SpoopyMessageResults
+        safety={safety}
+        url={url}
+        adfly={adfly}
+        bitly_warning={bitly_warning}
+        error={error}
+        reasons={reasons}
+        youtube={youtube}
+      />
+    </ListItem>
+  );
 }
 
 SpoopyMessage.propTypes = {
