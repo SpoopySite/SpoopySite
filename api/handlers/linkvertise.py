@@ -66,6 +66,8 @@ async def linkvertise(parsed: ParseResult, session: aiohttp.client.ClientSession
     url = url.lstrip("/download/")
     url = url.lstrip("/")
 
+    url = "/".join(url.split("/")[:2])
+
     log.info(url)
 
     link_id = await get_link_id(parsed, session, url)
