@@ -25,7 +25,7 @@ async def ws_spoopy(request: sanic.request.Request, ws: websockets.legacy.protoc
     url = await ws.recv()
     log.debug(f"New URL: {url}")
 
-    if not await api.helpers.validate_url(url):
+    if not api.helpers.validate_url(url):
         await ws.send(json.dumps({"error": "Invalid URL"}))
         await ws.close()
         return
