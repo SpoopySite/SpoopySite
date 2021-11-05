@@ -2,7 +2,7 @@ aiohttp==3.7.4
 ruamel.yaml==0.17.16
 sanic==21.6.1
 requests==2.26.0
-validators==0.18.1
+validators==0.18.2
 asyncpg==0.24.0
 websockets==9.1
 beautifulsoup4==4.10.0
