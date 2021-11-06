@@ -42,36 +42,26 @@ async def get_api_check_website(request):
         return sanic.response.json({"error": "Go away."})
 
     try:
-        redirects = await api.helpers.redirect_gatherer(url, request.app.session)
-    except aiohttp.client_exceptions.ClientConnectorError:
+        redirects = await api.helpers.manual_redirect_gatherer(url, request.app.session)
+    except aiohttp.client_exceptions.ClientConnectorError as err:
         log.warning(f"Error connecting to {url}")
+        log.warning(err)
         return sanic.response.json({"error": f"Could not establish a connection to {url}"}, status=400)
 
     if len(redirects) == 0:
         redirects.append(url)
-    log.info(redirects)
+    log.info(f"Redirects for {url}: {redirects}")
 
-    async with request.app.session.get(redirects[-1], allow_redirects=False) as resp:
-        text = await resp.text("utf-8")
-        resp.close()
-    refresh_header = api.helpers.refresh_header_finder(text)
-    if refresh_header:
-        redirects.append(refresh_header)
+    # async with request.app.session.get(redirects[-1], allow_redirects=False) as resp:
+    #     text = await resp.text("utf-8")
+    #     resp.close()
+    # refresh_header = api.helpers.refresh_header_finder(text)
+    # if refresh_header:
+    #     redirects.append(refresh_header)
 
     checks = {
         "urls": {},
     }
-
-    # parsed_url = urllib.parse.urlparse(redirects[-1])
-    # if "youtube.com" in parsed_url.netloc and parsed_url.path == "/redirect":
-    #     if "q" in urllib.parse.parse_qs(parsed_url.query):
-    #         redirects.append(urllib.parse.parse_qs(parsed_url.query).get("q")[0])
-    # elif "google.com" in parsed_url.netloc and parsed_url.path == "/url":
-    #     if "url" in urllib.parse.parse_qs(parsed_url.query):
-    #         redirects.append(urllib.parse.parse_qs(parsed_url.query).get("url")[0])
-    # elif "bitly.com" in parsed_url.netloc and parsed_url.path == "/a/warning":
-    #     if "url" in urllib.parse.parse_qs(parsed_url.query):
-    #         redirects.append(urllib.parse.parse_qs(parsed_url.query).get("url")[0])
 
     for redirect_url in redirects:
         checks["urls"][redirect_url] = {"safety": 0}
@@ -82,7 +72,8 @@ async def get_api_check_website(request):
                                            request.app.session,
                                            request.app.db,
                                            request.app.fish)
-            status, location, safety, reasons, refresh_redirect, text, headers, hsts_check, js_redirect, query_redirect = data
+            status, location, safety, reasons, refresh_redirect, text, headers, hsts_check,\
+                js_redirect, query_redirect, partial_info = data
         except aiohttp.client_exceptions.ClientConnectorError:
             log.warning(f"Error connecting to {redirect_url} on API")
             return sanic.response.json({"error": f"Could not establish a connection to {redirect_url}"})
@@ -91,13 +82,16 @@ async def get_api_check_website(request):
             log.error(err)
             return sanic.response.json({"error": f"Could not support the protocol version that {redirect_url} uses"})
 
-        handler_check = await api.handlers.handlers.handlers(parsed, text, headers, request.app.session)
+        if not partial_info:
+            handler_check = await api.handlers.handlers.handlers(parsed, text, headers, request.app.session)
+        else:
+            handler_check = {}
 
         adfly = False
         bitly_warning = False
         youtube_check = False
 
-        if handler_check["url"]:
+        if handler_check.get("url"):
             redirects.append(handler_check.get("url"))
             youtube_check = handler_check.get("youtube")
             bitly_warning = handler_check.get("bitly")
@@ -107,7 +101,8 @@ async def get_api_check_website(request):
             "not_safe_reasons": reasons,
             "safe": safety,
             "hsts": hsts_check if hsts_check == "preloaded" else "NO_HSTS",
-            "safety": 0 - len(reasons)
+            "safety": 0 - len(reasons),
+            "partial_info": partial_info
         }
         if adfly:
             checks["urls"][redirect_url]["adfly"] = "Adfly detected"

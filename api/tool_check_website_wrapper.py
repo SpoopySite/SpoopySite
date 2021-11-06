@@ -1,3 +1,4 @@
+import aiohttp.client_exceptions
 import logging
 
 import aiohttp
@@ -13,13 +14,20 @@ log = logging.getLogger(__name__)
 
 async def get_check_website(url: str, session: aiohttp.client.ClientSession, db: asyncpg.pool.Pool, fish: list):
     text = None
+    partial_info = False
 
-    async with session.get(url, allow_redirects=False, headers={"User-Agent": get_random_user_agent()}) as resp:
-        status = resp.status
-        headers = resp.headers
-        if not headers.get("Content-Type", "").startswith("image"):
-            text = await resp.text("utf-8")
-        resp.close()
+    try:
+        async with session.get(url, allow_redirects=False, headers={"User-Agent": get_random_user_agent()}) as resp:
+            status = resp.status
+            headers = resp.headers
+            if not headers.get("Content-Type", "").startswith("image"):
+                text = await resp.text("utf-8")
+            resp.close()
+    except aiohttp.client_exceptions.ClientConnectorError:
+        log.warning(f"Error connecting to {url} on API")
+        partial_info = True
+        status = None
+        headers = {}
 
     log.info(f"Status: {status}")
 
@@ -75,4 +83,4 @@ async def get_check_website(url: str, session: aiohttp.client.ClientSession, db:
     if not location:
         location = headers.get("Location")
 
-    return status, location, safety, reasons, refresh_redirect, text, headers, hsts_check, js_redirect, query_redirect
+    return status, location, safety, reasons, refresh_redirect, text, headers, hsts_check, js_redirect, query_redirect, partial_info

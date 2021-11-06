@@ -1,3 +1,4 @@
+import asyncio.exceptions
 import datetime
 import json
 import logging
@@ -65,6 +66,22 @@ async def redirect_gatherer(url: str, session: aiohttp.client.ClientSession):
         history = [str(x.url) for x in resp.history]
         history.append(str(resp.url))
         return history
+
+
+async def manual_redirect_gatherer(url: str, session: aiohttp.client.ClientSession):
+    urls = [url]
+    for internalUrl in urls:
+        try:
+            async with session.get(internalUrl, headers={"User-Agent": get_random_user_agent()}, allow_redirects=False,
+                                   timeout=10) as resp:
+                if resp.status in (301, 302, 303, 307, 308):
+                    hdrs = resp.headers
+                    r_url = hdrs.get("Location") or hdrs.get("Location") or hdrs.get("uri")
+                if r_url not in urls:
+                    urls.append(r_url)
+        except asyncio.exceptions.TimeoutError:
+            log.warning(f"Timeout error on {internalUrl}")
+    return urls
 
 
 def validate_url(url: str):
