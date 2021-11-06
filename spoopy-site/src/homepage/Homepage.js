@@ -3,6 +3,9 @@ import { Redirect } from "react-router-dom";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
 import { styled } from "@mui/system";
+import TextField from "@mui/material/TextField";
+import InputAdornment from "@mui/material/InputAdornment";
+import Button from "@mui/material/Button";
 
 const StyledContainer = styled(Container)({
   position: "absolute",
@@ -12,14 +15,9 @@ const StyledContainer = styled(Container)({
 });
 
 const StyledDiv = styled("div")({
-  paddingTop: 3,
-  "& button": {
-    marginLeft: 5,
-  },
-  "& button, label, input": {
-    fontSize: "1.3rem"
-  }
+  paddingTop: 10
 });
+
 function Homepage() {
   const [switchPage, setSwitchPage] = useState(false);
   const [spoopyURL, setSpoopyURL] = useState("");
@@ -27,6 +25,9 @@ function Homepage() {
   const goToSpoopy = (event) => {
     const keyCode = event.keyCode || event.which;
     if (event.type === "click" || keyCode === 13) {
+      if (!(spoopyURL.startsWith("http://") || (spoopyURL.startsWith("https://")))) {
+        setSpoopyURL(`http://${spoopyURL}`);
+      }
       setSwitchPage(true);
     }
   };
@@ -36,10 +37,20 @@ function Homepage() {
    */
   const handleChange = (event) => {
     let url = event.target.value.trim();
-    if (!url.startsWith("http") && !url.startsWith("https") && url.length > 0) {
-      url = `http://${url}`;
-    }
     setSpoopyURL(url);
+  };
+
+  const EndAdornment = () => {
+    return (
+      <Button
+        id="go"
+        onClick={goToSpoopy}
+        onKeyUp={goToSpoopy}
+        variant="outlined"
+      >
+        Go
+      </Button>
+    );
   };
 
   return (
@@ -50,10 +61,20 @@ function Homepage() {
         <Typography variant="h5" component="h2" align="center">Checks how risky a website is by checking for IP Logging,
           Phishing, Malware and more.</Typography>
         <StyledDiv align="center">
-          <label htmlFor="input">Check a link: </label>
-          <input id="input" type="text" value={spoopyURL} onKeyUp={goToSpoopy}
-                 onChange={handleChange} autoFocus={true}/>
-          <button id="go" onClick={goToSpoopy} onKeyUp={goToSpoopy}>Go</button>
+          <TextField
+            id="input"
+            type="text"
+            value={spoopyURL}
+            onKeyUp={goToSpoopy}
+            onChange={handleChange}
+            autoFocus
+            variant="outlined"
+            label="Check a link"
+            InputProps={{
+              startAdornment: <InputAdornment position={"start"}>http://</InputAdornment>,
+              endAdornment: <EndAdornment/>
+            }}
+          />
         </StyledDiv>
       </StyledContainer>
   );
