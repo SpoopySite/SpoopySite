@@ -15,7 +15,7 @@ const StyledContainer = styled(Container)({
 });
 
 const StyledDiv = styled("div")({
-  paddingTop: 10
+  paddingTop: "1em"
 });
 
 function Homepage() {
@@ -83,6 +83,7 @@ function Homepage() {
               startAdornment: <StartAdornment/>,
               endAdornment: <EndAdornment/>
             }}
+            fullWidth
           />
         </StyledDiv>
       </StyledContainer>
