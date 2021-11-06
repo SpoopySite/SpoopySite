@@ -1,18 +1,17 @@
 import React from "react";
 import Container from "@mui/material/Container";
-import { makeStyles } from "@mui/styles";
+import { styled } from "@mui/system";
 
-const useStyles = makeStyles({
-  container: {
+const StyledContainer = styled(Container)({
+    container: {
     marginBottom: 71 // Height 58 + Padding 10 + Border Top 3
   }
-});
+})
 
 export default function BottomPaddingContainer({ children }) {
-  const classes = useStyles();
   return (
-    <Container className={classes.container}>
+    <StyledContainer>
       {children}
-    </Container>
+    </StyledContainer>
   );
 }

@@ -1,50 +1,47 @@
 import React from "react";
 import { Link as RouterLink } from "react-router-dom";
 import { Link } from "@mui/material";
-import clsx from "clsx";
-import Typography from "@mui/material/Typography";
-import { makeStyles } from "@mui/styles";
+import { styled } from "@mui/system";
 
-const useStyles = makeStyles(styles =>({
-  footer: {
-    bottom: 0,
-    position: "fixed",
-    width: "100%",
-    paddingTop: "0.5em",
-    paddingBottom: "0.5em",
-    borderTop: "3px solid lightslategray",
-    fontSize: "20px",
-    textAlign: "center",
-    backgroundColor: styles.palette.background.default
-  },
-  p: {
-    padding: 0,
-    margin: 0
-  },
-  a: {
-    display: "inline-block",
-    padding: "2px"
-  },
-  inspiration: {
-    fontSize: "15px"
-  }
+const StyledFooter = styled("footer")(({ theme }) => ({
+  bottom: 0,
+  position: "fixed",
+  width: "100%",
+  paddingTop: "0.5em",
+  paddingBottom: "0.5em",
+  borderTop: "3px solid lightslategray",
+  fontSize: "20px",
+  textAlign: "center",
+  backgroundColor: theme.palette.background.default
 }));
 
+const StyledP = styled("p")({
+  padding: 0,
+  margin: 0,
+  "& a": {
+    display: "inline-block",
+    padding: "2px"
+  }
+});
+
+const StyledInspiration = styled(StyledP)({
+  fontSize: "15px"
+});
+
 function Footer() {
-  const classes = useStyles();
   return (
-    <footer className={classes.footer}>
-      <p className={classes.p}>
-        <Link component={RouterLink} className={classes.a} to="/">Home</Link>
-        <Link component={RouterLink} className={classes.a} to="/docs">Docs</Link>
-        <Link component={RouterLink} className={classes.a} to="/faq">FAQ</Link>
+    <StyledFooter>
+      <StyledP>
+        <Link component={RouterLink} to="/">Home</Link>
+        <Link component={RouterLink} to="/docs">Docs</Link>
+        <Link component={RouterLink} to="/faq">FAQ</Link>
         <Link href="https://github.com/Lagicrus/spoopy-python">GitHub</Link>
-        <Link component={RouterLink} className={classes.a} to="/about">About</Link>
-      </p>
-      <Typography className={clsx(classes.p, classes.inspiration)}>
+        <Link component={RouterLink} to="/about">About</Link>
+      </StyledP>
+      <StyledInspiration>
         Inspired by <Link href="https://github.com/spoopy-link/server">spoopy link</Link>
-      </Typography>
-    </footer>
+      </StyledInspiration>
+    </StyledFooter>
   );
 }
 

@@ -4,23 +4,22 @@ import Link from "@mui/material/Link";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
 import List from "@mui/material/List";
-import { makeStyles } from "@mui/styles";
 import BottomPaddingContainer from "../components/BottomPaddingContainer";
+import { styled } from "@mui/system";
 
-const useStyles = makeStyles({
-  list: {
-    "& a": {
-      paddingTop: 0,
-      paddingBottom: 0,
-      maxWidth: "fit-content"
-    },
-    marginTop: "0 !important",
-    marginBottom: "0 !important"
+const StyledList = styled(List)({
+  "& a": {
+    paddingTop: 0,
+    paddingBottom: 0,
+    maxWidth: "fit-content"
   },
-  ghost: {
-    margin: "0 auto",
-    width: "min-content"
-  }
+  marginTop: "0 !important",
+  marginBottom: "0 !important"
+});
+
+const SpoopyGhostPre = styled("pre")({
+  margin: "0 auto",
+  width: "min-content"
 });
 
 const spoopyGhost =
@@ -34,14 +33,12 @@ const spoopyGhost =
 ██████████████
 ██████████████
 ██ ███  ███ ██
-█   ██  ██   █  - SuperFromNotDiscord`
+█   ██  ██   █  - SuperFromNotDiscord`;
 
 function About() {
-  const classes = useStyles();
-
   return (
     <BottomPaddingContainer>
-      <pre className={classes.ghost}>{spoopyGhost}</pre>
+      <SpoopyGhostPre>{spoopyGhost}</SpoopyGhostPre>
       <Typography variant="h4" component="h1" gutterBottom>About</Typography>
       <Typography variant="h5" component="h2" gutterBottom>Inspiration</Typography>
       <Typography variant="body1">
@@ -81,23 +78,23 @@ function About() {
       <Typography variant="body1">
         The list below shows what is used to help power this site's frontend and make it understandable and easy to use
       </Typography>
-      <List className={classes.list}>
+      <StyledList>
         <ListItem component={Link} href="https://reactjs.org"><ListItemText primary="ReactJS"/></ListItem>
         <ListItem component={Link} href="https://reactrouter.com/"><ListItemText primary="ReactRouter"/></ListItem>
         <ListItem component={Link} href="https://material-ui.com/"><ListItemText primary="Material-UI"/></ListItem>
-      </List>
+      </StyledList>
       <Typography variant="h6" component="h3" gutterBottom>Back-End</Typography>
       <Typography variant="body1">
         The list below shows what is used to help power the backend of the site and serve the API
       </Typography>
-      <List className={classes.list}>
+      <StyledList>
         <ListItem component={Link} href="https://sanicframework.org/"><ListItemText primary="Sanic"/></ListItem>
         <ListItem component={Link} href="https://www.docker.com/"><ListItemText primary="Docker"/></ListItem>
         <ListItem component={Link} href="https://docs.aiohttp.org/en/stable/"><ListItemText
           primary="AIOHTTP"/></ListItem>
         <ListItem component={Link} href="https://github.com/MagicStack/asyncpg"><ListItemText
           primary="asyncpg"/></ListItem>
-      </List>
+      </StyledList>
     </BottomPaddingContainer>
   );
 }

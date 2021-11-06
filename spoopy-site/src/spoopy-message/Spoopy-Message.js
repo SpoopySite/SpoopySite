@@ -1,30 +1,27 @@
 import React, { lazy } from "react";
 import PropTypes from "prop-types";
 import ListItem from "@mui/material/ListItem";
-import { makeStyles } from "@mui/styles";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
 import Avatar from "@mui/material/Avatar";
 import { ListItemText } from "@mui/material";
 import { Adfly } from "./warningMessages";
+import { styled } from "@mui/system";
 
 const { Youtube, Bitly } = lazy(() => import(/* webpackChunkName: "wM" */ "./warningMessages"));
 
-const useStyles = makeStyles({
-  results: {
-    fontSize: "1.5em",
-    overflowWrap: "break-word"
-  },
-  errorResults: {
-    fontSize: "1.5em",
-    overflowWrap: "break-word",
-    color: "red"
-  }
+const StyledResults = styled(ListItem)({
+  fontSize: "1.5em",
+  overflowWrap: "break-word"
+});
+
+const StyledErrorText = styled(ListItemText)({
+  color: "red"
 });
 
 function SpoopyMessageResults({ error, youtube, url, bitly_warning, adfly, safety, reasons }) {
   if (error) {
     return (
-      <ListItemText primary={error}/>
+      <StyledErrorText primary={error}/>
     );
   } else if (youtube) {
     return (
@@ -60,10 +57,9 @@ SpoopyMessageResults.propTypes = {
 
 function SpoopyMessage({ data }) {
   const { url, safety, reasons, error, youtube, bitly_warning, adfly } = data;
-  const classes = useStyles();
 
   return (
-    <ListItem className={error ? classes.errorResults : classes.results} alignItems="flex-start">
+    <StyledResults alignItems="flex-start">
       <ListItemAvatar>
         <Avatar sx={{ width: 32, height: 32 }} src={`https://www.google.com/s2/favicons?domain=${url}&sz=32`}/>
       </ListItemAvatar>
@@ -76,7 +72,7 @@ function SpoopyMessage({ data }) {
         reasons={reasons}
         youtube={youtube}
       />
-    </ListItem>
+    </StyledResults>
   );
 }
 
