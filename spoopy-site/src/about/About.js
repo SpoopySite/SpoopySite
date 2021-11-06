@@ -40,11 +40,6 @@ function About() {
     <BottomPaddingContainer>
       <SpoopyGhostPre>{spoopyGhost}</SpoopyGhostPre>
       <Typography variant="h4" component="h1" gutterBottom>About</Typography>
-      <Typography variant="h5" component="h2" gutterBottom>Inspiration</Typography>
-      <Typography variant="body1">
-        This was inspired by <Link href="https://github.com/devsnek">devsnek</Link>'s original
-        project, <Link href="https://github.com/spoopy-link/server">Spoopy-Link</Link>
-      </Typography>
       <Typography variant="body1" paragraph>
         This was created as the original wasn't being updated and it wasn't online much if at all over a 2 year period
         when myself and others wanted to use and check questionable links that were being sent.
