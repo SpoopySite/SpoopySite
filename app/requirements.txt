@@ -1,5 +1,5 @@
 aiohttp==3.7.4
-ruamel.yaml==0.17.16
+ruamel.yaml==0.17.17
 sanic==21.6.1
 requests==2.26.0
 validators==0.18.2
