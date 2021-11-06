@@ -40,6 +40,15 @@ function Homepage() {
     setSpoopyURL(url);
   };
 
+  const StartAdornment = () => {
+    if (spoopyURL.startsWith("http://") || (spoopyURL.startsWith("https://"))) {
+      return null;
+    }
+    return (
+      <InputAdornment position={"start"}>http://</InputAdornment>
+    );
+  };
+
   const EndAdornment = () => {
     return (
       <Button
@@ -71,7 +80,7 @@ function Homepage() {
             variant="outlined"
             label="Check a link"
             InputProps={{
-              startAdornment: <InputAdornment position={"start"}>http://</InputAdornment>,
+              startAdornment: <StartAdornment/>,
               endAdornment: <EndAdornment/>
             }}
           />
