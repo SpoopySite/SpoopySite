@@ -43,7 +43,8 @@ async def ws_spoopy(request: sanic.request.Request, ws: websockets.legacy.protoc
             await ws.close()
 
         try:
-            status, location, safety, reasons, refresh_redirect, text, headers, hsts_check, js_redirect, query_redirect \
+            status, location, safety, reasons, refresh_redirect, text, headers, hsts_check,\
+            js_redirect, query_redirect, partial_info \
                 = await get_check_website(url, request.app.session, request.app.db, request.app.fish)
         except aiohttp.client_exceptions.ClientConnectorError:
             log.warning(f"Error connecting to {url} on WS")
@@ -80,7 +81,8 @@ async def ws_spoopy(request: sanic.request.Request, ws: websockets.legacy.protoc
                                   "reasons": reasons,
                                   "youtube": youtube_check,
                                   "bitly_warning": bitly_warning,
-                                  "adfly": adfly}))
+                                  "adfly": adfly,
+                                  "partial_info": partial_info}))
         youtube_check = False
         bitly_warning = False
         adfly = False
