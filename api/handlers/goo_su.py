@@ -3,4 +3,6 @@ from bs4 import BeautifulSoup
 
 def goo_su(text: str):
     soup = BeautifulSoup(text, features="html.parser")
-    return soup.find(id="delay-page").attrs.get("data-url", None)
+    delay_page = soup.find(id="delay-page")
+    if delay_page:
+        return delay_page.attrs.get("data-url", None)
