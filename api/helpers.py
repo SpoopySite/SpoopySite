@@ -74,6 +74,7 @@ async def manual_redirect_gatherer(url: str, session: aiohttp.client.ClientSessi
         try:
             async with session.get(internalUrl, headers={"User-Agent": get_random_user_agent()}, allow_redirects=False,
                                    timeout=10) as resp:
+                r_url = ""
                 if resp.status in (301, 302, 303, 307, 308):
                     hdrs = resp.headers
                     r_url = hdrs.get("Location") or hdrs.get("Location") or hdrs.get("uri")
