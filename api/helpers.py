@@ -78,7 +78,7 @@ async def manual_redirect_gatherer(url: str, session: aiohttp.client.ClientSessi
                 if resp.status in (301, 302, 303, 307, 308):
                     hdrs = resp.headers
                     r_url = hdrs.get("Location") or hdrs.get("Location") or hdrs.get("uri")
-                if r_url not in urls:
+                if r_url not in urls and r_url != "":
                     urls.append(r_url)
         except asyncio.exceptions.TimeoutError:
             log.warning(f"Timeout error on {internalUrl}")
