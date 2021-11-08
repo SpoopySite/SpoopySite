@@ -41,6 +41,8 @@ async def get_check_website(url: str, session: aiohttp.client.ClientSession, db:
     webrisk_check = await api.helpers.webrisk_check(url, session, db)
     cloudflare_check = await api.checkers.cloudflare.check(parsed_url.netloc)
     luma_check = await api.checkers.luma.check(tld_parsed_url.fld, session)
+    if not luma_check:
+        luma_check = await api.checkers.luma.check(parsed_url.netloc, session)
     query_redirect = api.helpers.query_redirect(parsed_url)
 
     if text is not None:
