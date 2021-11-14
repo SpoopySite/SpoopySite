@@ -42,7 +42,7 @@ async def get_api_check_website(request):
         return sanic.response.json({"error": "Go away."})
 
     try:
-        redirects = await api.helpers.manual_redirect_gatherer(url, request.app.session)
+        redirects = await api.helpers.manual_redirect_gatherer(url, request.app.session, request.app.db)
     except aiohttp.client_exceptions.ClientConnectorError as err:
         log.warning(f"Error connecting to {url}")
         log.warning(err)
@@ -73,7 +73,7 @@ async def get_api_check_website(request):
                                            request.app.db,
                                            request.app.fish)
             status, location, safety, reasons, refresh_redirect, text, headers, hsts_check,\
-                js_redirect, query_redirect, partial_info = data
+                js_redirect, query_redirect, partial_info, cached = data
         except aiohttp.client_exceptions.ClientConnectorError:
             log.warning(f"Error connecting to {redirect_url} on API")
             return sanic.response.json({"error": f"Could not establish a connection to {redirect_url}"})

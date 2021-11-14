@@ -13,6 +13,7 @@ from bs4 import BeautifulSoup, element
 
 from app.config import Config
 from app.useragents import get_random_user_agent
+import api.cached
 
 config = Config.from_file()
 log = logging.getLogger(__name__)
@@ -68,9 +69,21 @@ async def redirect_gatherer(url: str, session: aiohttp.client.ClientSession):
         return history
 
 
-async def manual_redirect_gatherer(url: str, session: aiohttp.client.ClientSession):
+async def manual_redirect_gatherer(url: str, session: aiohttp.client.ClientSession, db: asyncpg.pool.Pool):
     urls = [url]
     for internalUrl in urls:
+        cached_data = await api.cached.cached(url, db)
+        if cached_data:
+            log.info(f"Using cached redirect data for {internalUrl}")
+            cached_data = json.loads(cached_data)
+            status, _, _, _, _, _, headers, _, _, _, _ = cached_data
+            r_url = ""
+            if status in (301, 302, 303, 307, 308):
+                r_url = headers.get("Location") or headers.get("location") or headers.get("uri")
+            if r_url not in urls and r_url != "":
+                urls.append(r_url)
+            continue
+
         try:
             async with session.get(internalUrl, headers={"User-Agent": get_random_user_agent()}, allow_redirects=False,
                                    timeout=10) as resp:
