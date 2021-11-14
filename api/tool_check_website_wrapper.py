@@ -1,10 +1,12 @@
-import aiohttp.client_exceptions
+import json
 import logging
 
 import aiohttp
+import aiohttp.client_exceptions
 import asyncpg
 import tld
 
+import api.cached
 import api.checkers
 import api.helpers
 from app.useragents import get_random_user_agent
@@ -15,6 +17,17 @@ log = logging.getLogger(__name__)
 async def get_check_website(url: str, session: aiohttp.client.ClientSession, db: asyncpg.pool.Pool, fish: list):
     text = None
     partial_info = False
+    cached = False
+
+    cached_data = await api.cached.cached(url, db)
+    if cached_data:
+        log.info(f"Serving {url} from cache")
+        data = json.loads(cached_data)
+        cached = True
+        status, location, safety, reasons, refresh_redirect, text, headers, hsts_check, js_redirect, query_redirect, \
+        partial_info = data
+        return status, location, safety, reasons, refresh_redirect, text, headers, hsts_check, js_redirect, \
+               query_redirect, partial_info, cached
 
     try:
         async with session.get(url, allow_redirects=False, headers={"User-Agent": get_random_user_agent()}) as resp:
@@ -85,4 +98,9 @@ async def get_check_website(url: str, session: aiohttp.client.ClientSession, db:
     if not location:
         location = headers.get("Location")
 
-    return status, location, safety, reasons, refresh_redirect, text, headers, hsts_check, js_redirect, query_redirect, partial_info
+    data = [status, location, safety, reasons, refresh_redirect, text, dict(headers), hsts_check, js_redirect,
+            query_redirect, partial_info]
+    data = json.dumps(data)
+    await api.cached.insert_into_cache(url, data, db)
+
+    return status, location, safety, reasons, refresh_redirect, text, headers, hsts_check, js_redirect, query_redirect, partial_info, cached

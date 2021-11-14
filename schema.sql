@@ -12,3 +12,10 @@ CREATE TABLE IF NOT EXISTS web_risk
     malware            BOOLEAN DEFAULT FALSE,
     expire_time        TIMESTAMP
 );
+
+CREATE TABLE IF NOT EXISTS past_checks
+(
+    url        TEXT PRIMARY KEY,
+    data       JSONB,
+    created_at TIMESTAMP DEFAULT now()
+);

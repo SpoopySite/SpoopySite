@@ -43,9 +43,9 @@ async def ws_spoopy(request: sanic.request.Request, ws: websockets.legacy.protoc
             await ws.close()
 
         try:
-            status, location, safety, reasons, refresh_redirect, text, headers, hsts_check,\
-            js_redirect, query_redirect, partial_info \
-                = await get_check_website(url, request.app.session, request.app.db, request.app.fish)
+            data = await get_check_website(url, request.app.session, request.app.db, request.app.fish)
+            status, location, safety, reasons, refresh_redirect, text, headers, hsts_check, \
+            js_redirect, query_redirect, partial_info, cached = data
         except aiohttp.client_exceptions.ClientConnectorError:
             log.warning(f"Error connecting to {url} on WS")
             await ws.send(json.dumps({"error": f"Could not establish a connection to {url}"}))
@@ -69,6 +69,11 @@ async def ws_spoopy(request: sanic.request.Request, ws: websockets.legacy.protoc
             await ws.send(json.dumps({"error": str(e)}))
             await ws.close()
             return
+        except Exception as err:
+            log.error(err, exc_info=True)
+            await ws.send(json.dumps({"error": "Unknown error occurred. Please contact the devs"}))
+            await ws.close()
+            return
 
         if handler_check["url"]:
             url_pool.append(handler_check.get("url"))
@@ -87,18 +92,22 @@ async def ws_spoopy(request: sanic.request.Request, ws: websockets.legacy.protoc
         bitly_warning = False
         adfly = False
 
-        if status in [300, 301, 302, 303, 307, 308]:
-            if location.startswith("/"):
-                url_pool.append(f"{parsed.scheme}://{parsed.netloc}/{location}")
-            else:
-                if location not in url_pool:
-                    url_pool.append(location)
-        if refresh_redirect:
-            url_pool.append(refresh_redirect)
-        if js_redirect:
-            url_pool.append(js_redirect)
-        if query_redirect:
-            url_pool.append(query_redirect)
+        try:
+            if status in [300, 301, 302, 303, 307, 308]:
+                if location.startswith("/"):
+                    url_pool.append(f"{parsed.scheme}://{parsed.netloc}/{location}")
+                else:
+                    if location not in url_pool:
+                        url_pool.append(location)
+            if refresh_redirect:
+                url_pool.append(refresh_redirect)
+            if js_redirect:
+                url_pool.append(js_redirect)
+            if query_redirect:
+                url_pool.append(query_redirect)
+        except Exception as err:
+            log.error(err, exc_info=True)
+            await ws.send(json.dumps({"error": "Unknown error occurred. Please contact the devs"}))
+            await ws.close()
+            return
     await ws.send(json.dumps({"end": True}))
-    await ws.close()
-    return
