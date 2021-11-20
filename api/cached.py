@@ -3,11 +3,23 @@ import asyncpg
 
 
 async def insert_into_cache(url: str, result: str, pool: asyncpg.pool.Pool):
+    if await check_if_cached(url, pool):
+        await update_cache(url, result, pool)
+    else:
+        async with pool.acquire() as conn:
+            await conn.execute("""
+            INSERT INTO past_checks (url, data)
+            VALUES ($1, $2)
+            """, url, result)
+
+
+async def update_cache(url: str, result: str, pool: asyncpg.pool.Pool):
     async with pool.acquire() as conn:
         await conn.execute("""
-        INSERT INTO past_checks (url, data)
-        VALUES ($1, $2)
-        """, url, result)
+        UPDATE past_checks
+        SET data = $1, created_at = NOW()
+        WHERE url = $2
+        """, result, url)
 
 
 async def cached(url: str, pool: asyncpg.pool.Pool):
