@@ -33,7 +33,7 @@ async def get_check_website(url: str, session: aiohttp.client.ClientSession, db:
         async with session.get(url, allow_redirects=False, headers={"User-Agent": get_random_user_agent()}) as resp:
             status = resp.status
             headers = resp.headers
-            if not headers.get("Content-Type", "").startswith("image"):
+            if not headers.get("Content-Type", "").startswith("image") or not headers.get("Content-Type", "").startswith("video"):
                 text = await resp.text("utf-8")
             resp.close()
     except aiohttp.client_exceptions.ClientConnectorError:
