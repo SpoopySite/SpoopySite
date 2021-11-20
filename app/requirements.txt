@@ -4,7 +4,7 @@ sanic==21.6.1
 requests==2.26.0
 validators==0.18.2
 asyncpg==0.24.0
-websockets==9.1
+websockets==10.1
 beautifulsoup4==4.10.0
 dnspython==2.1.0
 sanic-openapi==21.6.1
