@@ -86,9 +86,10 @@ async def get_check_website(url: str, session: aiohttp.client.ClientSession, db:
         safety = False
         reasons.append("Phishtank")
 
-    if str(cloudflare_check[0]) == "0.0.0.0":
-        safety = False
-        reasons.append("Cloudflare")
+    if cloudflare_check:
+        if str(cloudflare_check[0]) == "0.0.0.0":
+            safety = False
+            reasons.append("Cloudflare")
 
     if luma_check:
         safety = False
