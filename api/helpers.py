@@ -72,7 +72,7 @@ async def redirect_gatherer(url: str, session: aiohttp.client.ClientSession):
 async def manual_redirect_gatherer(url: str, session: aiohttp.client.ClientSession, db: asyncpg.pool.Pool):
     urls = [url]
     for internalUrl in urls:
-        cached_data = await api.cached.cached(url, db)
+        cached_data = await api.cached.cached(internalUrl, db)
         if cached_data:
             log.info(f"Using cached redirect data for {internalUrl}")
             cached_data = json.loads(cached_data)
@@ -80,6 +80,11 @@ async def manual_redirect_gatherer(url: str, session: aiohttp.client.ClientSessi
             r_url = ""
             if status in (301, 302, 303, 307, 308):
                 r_url = headers.get("Location") or headers.get("location") or headers.get("uri")
+                if r_url:
+                    if r_url.startswith("/"):
+                        parsed = urlparse(internalUrl)
+                        r_url = f"{parsed.scheme}://{parsed.netloc}/{r_url[1:]}"
+                        log.info(f"Found redirect for {internalUrl} to {r_url} due to status of {status}")
             if r_url not in urls and r_url != "":
                 urls.append(r_url)
             continue
@@ -91,6 +96,11 @@ async def manual_redirect_gatherer(url: str, session: aiohttp.client.ClientSessi
                 if resp.status in (301, 302, 303, 307, 308):
                     hdrs = resp.headers
                     r_url = hdrs.get("Location") or hdrs.get("Location") or hdrs.get("uri")
+                    if r_url:
+                        if r_url.startswith("/"):
+                            parsed = urlparse(r_url)
+                            r_url = f"{parsed.scheme}://{parsed.netloc}/{r_url[1:]}"
+                            log.info(f"Found redirect for {internalUrl} to {r_url} due to status of {resp.status}")
                 if r_url not in urls and r_url != "":
                     urls.append(r_url)
         except asyncio.exceptions.TimeoutError:

@@ -95,7 +95,7 @@ async def ws_spoopy(request: sanic.request.Request, ws: websockets.legacy.protoc
         try:
             if status in [300, 301, 302, 303, 307, 308]:
                 if location.startswith("/"):
-                    url_pool.append(f"{parsed.scheme}://{parsed.netloc}/{location}")
+                    url_pool.append(f"{parsed.scheme}://{parsed.netloc}/{location[1:]}")
                 else:
                     if location not in url_pool:
                         url_pool.append(location)
