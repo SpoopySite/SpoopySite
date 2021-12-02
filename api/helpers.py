@@ -48,7 +48,7 @@ def js_script_check(text: str):
             return regex_search.group(1)
 
 
-def refresh_header_finder(text: str):
+def refresh_header_finder(text: str, url: ParseResult):
     soup = BeautifulSoup(text, features="html.parser")
     if not soup.head:
         return
@@ -59,7 +59,11 @@ def refresh_header_finder(text: str):
             if meta_tag.attrs.get("http-equiv", "").lower() == "refresh":
                 content = meta_tag.attrs.get("content")
                 log.info(content)
-                return re.search("""(?:\d+;\s?)?(?:[uU][rR][lL]=)?(['"])?(?P<url>.+)(?(1)['"]|)""", content).groupdict()["url"]
+                search_result = re.search("""(?:\d+;\s?)?(?:[uU][rR][lL]=)?(['"])?(?P<url>.+)(?(1)['"]|)""", content).groupdict()["url"]
+                log.info(f"Found refresh header: {search_result}")
+                if search_result.startswith("/"):
+                    search_result = f"{url.scheme}://{url.netloc}{search_result}"
+                return search_result
 
 
 async def redirect_gatherer(url: str, session: aiohttp.client.ClientSession):

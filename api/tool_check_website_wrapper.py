@@ -59,7 +59,7 @@ async def get_check_website(url: str, session: aiohttp.client.ClientSession, db:
     query_redirect = api.helpers.query_redirect(parsed_url)
 
     if text is not None:
-        refresh_redirect = api.helpers.refresh_header_finder(text)
+        refresh_redirect = api.helpers.refresh_header_finder(text, parsed_url)
         js_redirect = api.helpers.js_script_check(text)
     else:
         refresh_redirect = None
