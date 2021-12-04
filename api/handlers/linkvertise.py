@@ -34,7 +34,7 @@ async def get_link_id(parsed: ParseResult, session: aiohttp.client.ClientSession
                            ) as resp:
         json_content: dict = await resp.json()
     if json_content["success"]:
-        return json_content["data"]["link"]["id"]
+        return json_content["data"]["link"]["id"], json_content["data"]["link"]["target_type"]
     raise Linkvertise(f"Got errors from {urlunparse(parsed)}: {', '.join(json_content['messages'])}")
 
 
@@ -60,6 +60,15 @@ async def get_target(link_id: int, session: aiohttp.client.ClientSession, parsed
     return json_content
 
 
+async def get_paste(link_id: int, session: aiohttp.client.ClientSession, url: str):
+    serial = get_serial(link_id)
+    async with session.post(f"https://publisher.linkvertise.com/api/v1/redirect/link/{url}/paste", json={
+        "serial": serial
+    }, headers=headers()) as resp:
+        json_content: dict = await resp.json()
+    return json_content
+
+
 async def linkvertise(parsed: ParseResult, session: aiohttp.client.ClientSession):
     url = parsed.path
 
@@ -70,7 +79,13 @@ async def linkvertise(parsed: ParseResult, session: aiohttp.client.ClientSession
 
     log.info(url)
 
-    link_id = await get_link_id(parsed, session, url)
-    fetch_target = await get_target(link_id, session, parsed, url)
+    link_id, target_type = await get_link_id(parsed, session, url)
+    if target_type == "URL":
+        fetch_target = await get_target(link_id, session, parsed, url)
+    else:
+        fetch_target = await get_paste(link_id, session, url)
     log.info(f"FT: {fetch_target}")
-    return fetch_target["data"]["target"]
+    if target_type == "URL":
+        return fetch_target["data"]["target"]
+    else:
+        return fetch_target["data"]["paste"]
