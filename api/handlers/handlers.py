@@ -4,7 +4,7 @@ from urllib.parse import ParseResult, parse_qs
 import aiohttp
 import multidict
 
-from . import bitly, youtube, google, adfly, duckduckgo, justpasteit, linkvertise, goo_su
+from . import bitly, youtube, google, adfly, duckduckgo, justpasteit, linkvertise, goo_su, textbin
 
 log = logging.getLogger(__name__)
 
@@ -52,6 +52,10 @@ async def handlers(parsed: ParseResult, text: str, headers: multidict.CIMultiDic
             url = check
     elif "goo.su" in parsed.netloc:
         check = goo_su.goo_su(text)
+        if check:
+            url = check
+    elif "textbin.xyz" in parsed.netloc:
+        check = textbin.textbin(parsed)
         if check:
             url = check
 
