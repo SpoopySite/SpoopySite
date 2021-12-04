@@ -102,7 +102,7 @@ async def manual_redirect_gatherer(url: str, session: aiohttp.client.ClientSessi
                     r_url = hdrs.get("Location") or hdrs.get("Location") or hdrs.get("uri")
                     if r_url:
                         if r_url.startswith("/"):
-                            parsed = urlparse(r_url)
+                            parsed = urlparse(internalUrl)
                             r_url = f"{parsed.scheme}://{parsed.netloc}/{r_url[1:]}"
                             log.info(f"Found redirect for {internalUrl} to {r_url} due to status of {resp.status}")
                 if r_url not in urls and r_url != "":
