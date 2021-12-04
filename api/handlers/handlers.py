@@ -55,7 +55,7 @@ async def handlers(parsed: ParseResult, text: str, headers: multidict.CIMultiDic
         if check:
             url = check
     elif "textbin.xyz" in parsed.netloc:
-        check = textbin.textbin(parsed)
+        check = await textbin.textbin(parsed, session)
         if check:
             url = check
 

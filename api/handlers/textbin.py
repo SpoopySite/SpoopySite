@@ -1,24 +1,21 @@
+import aiohttp.client
 from urllib.parse import ParseResult
 
-from pbincli.api import PrivateBin
 from pbincli.format import Paste
 
 from api.helpers import validate_url
+from app.useragents import get_random_user_agent
 
 
-def textbin(parsed: ParseResult):
-    api_client = PrivateBin({"server": "https://textbin.xyz",
-                             'proxy': None,
-                             'short_api': None,
-                             'short_url': None,
-                             'short_user': None,
-                             'short_pass': None,
-                             'short_token': None,
-                             'no_check_certificate': False,
-                             'no_insecure_warning': False})
+async def textbin(parsed: ParseResult, session: aiohttp.client.ClientSession):
+    headers = {
+        "user-agent": get_random_user_agent(),
+        "X-Requested-With": "JSONHttpRequest"
+    }
+    async with session.get(f"https://textbin.xyz?{parsed.query}", headers=headers) as resp:
+        result: dict = await resp.json()
 
     paste = Paste()
-    result = api_client.get(parsed.query)
     version = result['v'] if 'v' in result else 1
     paste.setVersion(version)
     paste.setHash(parsed.fragment)
