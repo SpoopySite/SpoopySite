@@ -1,3 +1,4 @@
+import json
 import aiohttp.client
 from urllib.parse import ParseResult
 
@@ -7,12 +8,18 @@ from api.helpers import validate_url
 from app.useragents import get_random_user_agent
 
 
-async def textbin(parsed: ParseResult, session: aiohttp.client.ClientSession):
+def privatebin_domains():
+    with open("api/handlers/data/privatebin.json", "r") as file:
+        data = json.load(file)
+    return data
+
+
+async def privatebin(parsed: ParseResult, session: aiohttp.client.ClientSession):
     headers = {
         "user-agent": get_random_user_agent(),
         "X-Requested-With": "JSONHttpRequest"
     }
-    async with session.get(f"https://textbin.xyz?{parsed.query}", headers=headers) as resp:
+    async with session.get(f"https://{parsed.netloc}?{parsed.query}", headers=headers) as resp:
         result: dict = await resp.json()
 
     paste = Paste()

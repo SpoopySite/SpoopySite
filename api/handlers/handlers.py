@@ -4,7 +4,7 @@ from urllib.parse import ParseResult, parse_qs
 import aiohttp
 import multidict
 
-from . import bitly, youtube, google, adfly, duckduckgo, justpasteit, linkvertise, goo_su, textbin
+from . import bitly, youtube, google, adfly, duckduckgo, justpasteit, linkvertise, goo_su, privatebin
 
 log = logging.getLogger(__name__)
 
@@ -54,8 +54,8 @@ async def handlers(parsed: ParseResult, text: str, headers: multidict.CIMultiDic
         check = goo_su.goo_su(text)
         if check:
             url = check
-    elif "textbin.xyz" in parsed.netloc:
-        check = await textbin.textbin(parsed, session)
+    elif parsed.netloc in privatebin.privatebin_domains():
+        check = await privatebin.privatebin(parsed, session)
         if check:
             url = check
 
