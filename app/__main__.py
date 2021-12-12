@@ -37,7 +37,8 @@ from .logging import fix_access_log, setup_logging
 sentry_sdk.init(
     dsn="https://a2ab246b56f34179a4e2d2d54f0597d7@o970585.ingest.sentry.io/5921973",
     integrations=[SanicIntegration(), AioHttpIntegration()],
-    request_bodies="always"
+    request_bodies="always",
+    traces_sample_rate=1.0
 )
 
 asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
