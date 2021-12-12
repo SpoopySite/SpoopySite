@@ -119,6 +119,18 @@ def validate_url(url: str):
     return False
 
 
+def validate_ip(ip: str):
+    a = validators.ipv4(ip)
+    if a:
+        log.info(f"Found IPv4: {ip}")
+        return True
+    a = validators.ipv6(ip)
+    if a:
+        log.info(f"Found IPv6: {ip}")
+        return True
+    return False
+
+
 async def url_splitter(url: str):
     return urlparse(url)
 
@@ -212,7 +224,8 @@ async def open_blacklist():
 
 async def blacklist_check(url: str):
     blacklist = await open_blacklist()
-    url = tld.get_fld(url, fix_protocol=True)
+    if not validate_ip(url):
+        url = tld.get_fld(url, fix_protocol=True)
     if url in blacklist["blacklist"]:
         return blacklist["blacklist"][url]
     else:

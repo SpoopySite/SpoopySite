@@ -48,14 +48,15 @@ async def get_check_website(url: str, session: aiohttp.client.ClientSession, db:
     safety = True
 
     parsed_url = await api.helpers.url_splitter(url)
-    tld_parsed_url = tld.get_tld(url, as_object=True)
     hsts_check = await api.helpers.hsts_check(parsed_url.netloc, session, db)
     blacklist_check = await api.helpers.blacklist_check(parsed_url.netloc)
     webrisk_check = await api.helpers.webrisk_check(url, session, db)
     cloudflare_check = await api.checkers.cloudflare.check(parsed_url.netloc)
-    luma_check = await api.checkers.luma.check(tld_parsed_url.fld, session)
-    if not luma_check:
-        luma_check = await api.checkers.luma.check(parsed_url.netloc, session)
+    if not api.helpers.validate_ip(parsed_url.netloc):
+        tld_parsed_url = tld.get_tld(url, as_object=True)
+        luma_check = await api.checkers.luma.check(tld_parsed_url.fld, session)
+        if not luma_check:
+            luma_check = await api.checkers.luma.check(parsed_url.netloc, session)
     query_redirect = api.helpers.query_redirect(parsed_url)
 
     if text is not None:
