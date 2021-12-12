@@ -4,6 +4,7 @@ import os.path
 import pickle
 
 import aiohttp
+from sentry_sdk import Hub
 
 from app.config import Config
 
@@ -11,11 +12,12 @@ config = Config.from_file()
 log = logging.getLogger(__name__)
 
 
-async def update(session: aiohttp.client.ClientSession) -> dict:
-    log.info("Updating 🐟🐠")
-    async with session.get("https://api.hyperphish.com/gimme-domains", headers={"User-Agent": "spoopy.oceanlord.me"}) as resp:
-        json_content: dict = await resp.json()
-    return {"fetch_time": datetime.datetime.now(), "list": json_content}
+async def update(session: aiohttp.client.ClientSession, transaction: Hub.current.scope.transaction) -> dict:
+    with transaction.start_child(op="task", description="Phishing Update"):
+        log.info("Updating 🐟🐠")
+        async with session.get("https://api.hyperphish.com/gimme-domains", headers={"User-Agent": "spoopy.oceanlord.me"}) as resp:
+            json_content: dict = await resp.json()
+        return {"fetch_time": datetime.datetime.now(), "list": json_content}
 
 
 def save(json_content: dict):
@@ -28,17 +30,18 @@ def load() -> dict:
         return pickle.load(f)
 
 
-async def check(url: str, session: aiohttp.client.ClientSession):
-    log.info(f"🐟🐠 checking: {url}")
-    if os.path.isfile("luma.pickle"):
-        json = load()
-        if (json.get("fetch_time") + datetime.timedelta(minutes=5)) > datetime.datetime.now():
-            return url in json.get("list")
+async def check(url: str, session: aiohttp.client.ClientSession, transaction: Hub.current.scope.transaction):
+    with transaction.start_child(op="task", description="Phishing check"):
+        log.info(f"🐟🐠 checking: {url}")
+        if os.path.isfile("luma.pickle"):
+            json = load()
+            if (json.get("fetch_time") + datetime.timedelta(minutes=5)) > datetime.datetime.now():
+                return url in json.get("list")
+            else:
+                json = await update(session, transaction)
+                save(json)
+                return url in json.get("list")
         else:
-            json = await update(session)
+            json = await update(session, transaction)
             save(json)
             return url in json.get("list")
-    else:
-        json = await update(session)
-        save(json)
-        return url in json.get("list")

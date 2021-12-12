@@ -10,6 +10,7 @@ import asyncpg
 import tld
 import validators.url
 from bs4 import BeautifulSoup, element
+from sentry_sdk import Hub
 
 from app.config import Config
 from app.useragents import get_random_user_agent
@@ -195,25 +196,33 @@ async def update_hsts(session: aiohttp.client.ClientSession, url, pool: asyncpg.
     return status
 
 
-async def update_internal_hsts(session: aiohttp.client.ClientSession, url, pool: asyncpg.pool.Pool):
-    log.info("Updating HSTS status for: {}".format(url))
-    async with session.get("https://hstspreload.org/api/v2/status",
-                           params={"domain": url}) as resp:
-        json_data = await resp.json()
-        status = json_data.get("status")
-        await update_db_hsts(pool, url, status)
-    return status
+async def update_internal_hsts(session: aiohttp.client.ClientSession,
+                               url,
+                               pool: asyncpg.pool.Pool,
+                               transaction: Hub.current.scope.transaction):
+    with transaction.start_child(op="task", description="update_internal_hsts"):
+        log.info("Updating HSTS status for: {}".format(url))
+        async with session.get("https://hstspreload.org/api/v2/status",
+                               params={"domain": url}) as resp:
+            json_data = await resp.json()
+            status = json_data.get("status")
+            await update_db_hsts(pool, url, status)
+        return status
 
 
-async def hsts_check(url: str, session: aiohttp.client.ClientSession, pool: asyncpg.pool.Pool):
-    if await check_hsts(pool, url):
-        updated_at = await fetch_updated_at(pool, url)
-        if (updated_at + datetime.timedelta(days=7)) > datetime.datetime.now():
-            return await fetch_hsts(pool, url)
+async def hsts_check(url: str,
+                     session: aiohttp.client.ClientSession,
+                     pool: asyncpg.pool.Pool,
+                     transaction: Hub.current.scope.transaction):
+    with transaction.start_child(op="task", description="hsts_check"):
+        if await check_hsts(pool, url):
+            updated_at = await fetch_updated_at(pool, url)
+            if (updated_at + datetime.timedelta(days=7)) > datetime.datetime.now():
+                return await fetch_hsts(pool, url)
+            else:
+                return await update_internal_hsts(session, url, pool, transaction)
         else:
-            return await update_internal_hsts(session, url, pool)
-    else:
-        return await update_hsts(session, url, pool)
+            return await update_hsts(session, url, pool)
 
 
 async def open_blacklist():
@@ -222,14 +231,15 @@ async def open_blacklist():
     return data
 
 
-async def blacklist_check(url: str):
-    blacklist = await open_blacklist()
-    if not validate_ip(url):
-        url = tld.get_fld(url, fix_protocol=True)
-    if url in blacklist["blacklist"]:
-        return blacklist["blacklist"][url]
-    else:
-        return False
+async def blacklist_check(url: str, transaction: Hub.current.scope.transaction):
+    with transaction.start_child(op="task", description="Blacklist check"):
+        blacklist = await open_blacklist()
+        if not validate_ip(url):
+            url = tld.get_fld(url, fix_protocol=True)
+        if url in blacklist["blacklist"]:
+            return blacklist["blacklist"][url]
+        else:
+            return False
 
 
 async def parse_phistank(url: str, phishtank_data):
@@ -285,33 +295,37 @@ async def insert_webrisk(pool: asyncpg.pool.Pool, url: str, expire_time: datetim
         """, url, social_engineering, malware, expire_time)
 
 
-async def update_webrisk(url: str, session: aiohttp.client.ClientSession, pool: asyncpg.pool.Pool):
-    log.info(f"Fetching webrisk: {url}")
+async def update_webrisk(url: str,
+                         session: aiohttp.client.ClientSession,
+                         pool: asyncpg.pool.Pool,
+                         transaction: Hub.current.scope.transaction):
+    with transaction.start_child(op="task", description="Updating webrisk"):
+        log.info(f"Fetching webrisk: {url}")
 
-    params = [
-        ("uri", url),
-        ("key", config.webrisk_key),
-        ("threatTypes", "MALWARE"),
-        ("threatTypes", "SOCIAL_ENGINEERING"),
-        ("threatTypes", "UNWANTED_SOFTWARE")
-    ]
-    async with session.get("https://webrisk.googleapis.com/v1/uris:search", params=params) as resp:
-        json_content: dict = await resp.json()
+        params = [
+            ("uri", url),
+            ("key", config.webrisk_key),
+            ("threatTypes", "MALWARE"),
+            ("threatTypes", "SOCIAL_ENGINEERING"),
+            ("threatTypes", "UNWANTED_SOFTWARE")
+        ]
+        async with session.get("https://webrisk.googleapis.com/v1/uris:search", params=params) as resp:
+            json_content: dict = await resp.json()
 
-    if json_content.get("error"):
-        log.info("Error with Google API")
-        log.error(json_content)
+        if json_content.get("error"):
+            log.info("Error with Google API")
+            log.error(json_content)
 
-    if json_content == {}:
-        await insert_blank_webrisk(pool, url)
-    else:
-        parsed_time = datetime.datetime.strptime(json_content["threat"]["expireTime"][:-4], "%Y-%m-%dT%H:%M:%S.%f")
-        if json_content["threat"]["threatTypes"] == ["SOCIAL_ENGINEERING"]:
-            await insert_webrisk(pool=pool, url=url, social_engineering=True, expire_time=parsed_time)
-        elif json_content["threat"]["threatTypes"] == ["MALWARE"]:
-            await insert_webrisk(pool=pool, url=url, malware=True, expire_time=parsed_time)
+        if json_content == {}:
+            await insert_blank_webrisk(pool, url)
         else:
-            await insert_webrisk(pool=pool, url=url, social_engineering=True, malware=True, expire_time=parsed_time)
+            parsed_time = datetime.datetime.strptime(json_content["threat"]["expireTime"][:-4], "%Y-%m-%dT%H:%M:%S.%f")
+            if json_content["threat"]["threatTypes"] == ["SOCIAL_ENGINEERING"]:
+                await insert_webrisk(pool=pool, url=url, social_engineering=True, expire_time=parsed_time)
+            elif json_content["threat"]["threatTypes"] == ["MALWARE"]:
+                await insert_webrisk(pool=pool, url=url, malware=True, expire_time=parsed_time)
+            else:
+                await insert_webrisk(pool=pool, url=url, social_engineering=True, malware=True, expire_time=parsed_time)
 
 
 async def fetch_webrisk(pool: asyncpg.pool.Pool, url: str):
@@ -332,15 +346,19 @@ async def delete_webrisk(pool: asyncpg.pool.Pool, url: str):
         """, url)
 
 
-async def webrisk_check(url: str, session: aiohttp.client.ClientSession, pool: asyncpg.pool.Pool):
-    if await check_webrisk_internal(pool, url):
-        expire_time = await check_webrisk_expire(pool, url)
-        if expire_time < datetime.datetime.now():
-            await delete_webrisk(pool, url)
-            await update_webrisk(url, session, pool)
-            return await fetch_webrisk(pool, url)
+async def webrisk_check(url: str,
+                        session: aiohttp.client.ClientSession,
+                        pool: asyncpg.pool.Pool,
+                        transaction: Hub.current.scope.transaction):
+    with transaction.start_child(op="task", description="Checking webrisk"):
+        if await check_webrisk_internal(pool, url):
+            expire_time = await check_webrisk_expire(pool, url)
+            if expire_time < datetime.datetime.now():
+                await delete_webrisk(pool, url)
+                await update_webrisk(url, session, pool, transaction)
+                return await fetch_webrisk(pool, url)
+            else:
+                return await fetch_webrisk(pool, url)
         else:
+            await update_webrisk(url, session, pool, transaction)
             return await fetch_webrisk(pool, url)
-    else:
-        await update_webrisk(url, session, pool)
-        return await fetch_webrisk(pool, url)

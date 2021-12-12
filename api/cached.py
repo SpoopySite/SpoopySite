@@ -1,5 +1,6 @@
 import datetime
 import asyncpg
+from sentry_sdk import start_transaction
 
 
 async def insert_into_cache(url: str, result: str, pool: asyncpg.pool.Pool):
@@ -23,13 +24,15 @@ async def update_cache(url: str, result: str, pool: asyncpg.pool.Pool):
 
 
 async def cached(url: str, pool: asyncpg.pool.Pool):
-    if await check_if_cached(url, pool):
-        updated_at = await fetch_updated_at(pool, url)
-        if (updated_at + datetime.timedelta(hours=1)) > datetime.datetime.now():
-            return await fetch_cached_result(url, pool)
-        else:
-            return False
-    return False
+    with start_transaction(op="task", name="cached_return_cached_data") as transaction:
+        transaction.set_data("url", url)
+        if await check_if_cached(url, pool):
+            updated_at = await fetch_updated_at(pool, url)
+            if (updated_at + datetime.timedelta(hours=1)) > datetime.datetime.now():
+                return await fetch_cached_result(url, pool)
+            else:
+                return False
+        return False
 
 
 async def fetch_cached_result(url: str, pool: asyncpg.pool.Pool):

@@ -5,6 +5,7 @@ import aiohttp
 import aiohttp.client_exceptions
 import asyncpg
 import tld
+from sentry_sdk import start_transaction, Hub
 
 import api.cached
 import api.checkers
@@ -14,10 +15,15 @@ from app.useragents import get_random_user_agent
 log = logging.getLogger(__name__)
 
 
-async def get_check_website(url: str, session: aiohttp.client.ClientSession, db: asyncpg.pool.Pool, fish: list):
+async def get_check_website(url: str,
+                            session: aiohttp.client.ClientSession,
+                            db: asyncpg.pool.Pool,
+                            fish: list,
+                            transaction: Hub.current.scope.transaction):
     text = None
     partial_info = False
     cached = False
+    luma_check = False
 
     cached_data = await api.cached.cached(url, db)
     if cached_data:
@@ -29,35 +35,38 @@ async def get_check_website(url: str, session: aiohttp.client.ClientSession, db:
         return status, location, safety, reasons, refresh_redirect, text, headers, hsts_check, js_redirect, \
                query_redirect, partial_info, cached
 
-    try:
-        async with session.get(url, allow_redirects=False, headers={"User-Agent": get_random_user_agent()}) as resp:
-            status = resp.status
-            headers = resp.headers
-            if not headers.get("Content-Type", "").startswith("image") and not headers.get("Content-Type", "").startswith("video"):
-                text = await resp.text("utf-8")
-            resp.close()
-    except aiohttp.client_exceptions.ClientConnectorError:
-        log.warning(f"Error connecting to {url} on API")
-        partial_info = True
-        status = None
-        headers = {}
+    with transaction.start_child(op="task", description="Get check website"):
+        transaction.set_data("url", url)
+        try:
+            async with session.get(url, allow_redirects=False, headers={"User-Agent": get_random_user_agent()}) as resp:
+                status = resp.status
+                headers = resp.headers
+                if not headers.get("Content-Type", "").startswith("image") and not headers.get("Content-Type", "").startswith("video"):
+                    text = await resp.text("utf-8")
+                resp.close()
+        except aiohttp.client_exceptions.ClientConnectorError:
+            log.warning(f"Error connecting to {url} on API")
+            partial_info = True
+            status = None
+            headers = {}
 
     log.info(f"Status: {status}")
 
     reasons = []
     safety = True
 
-    parsed_url = await api.helpers.url_splitter(url)
-    hsts_check = await api.helpers.hsts_check(parsed_url.netloc, session, db)
-    blacklist_check = await api.helpers.blacklist_check(parsed_url.netloc)
-    webrisk_check = await api.helpers.webrisk_check(url, session, db)
-    cloudflare_check = await api.checkers.cloudflare.check(parsed_url.netloc)
-    if not api.helpers.validate_ip(parsed_url.netloc):
-        tld_parsed_url = tld.get_tld(url, as_object=True)
-        luma_check = await api.checkers.luma.check(tld_parsed_url.fld, session)
-        if not luma_check:
-            luma_check = await api.checkers.luma.check(parsed_url.netloc, session)
-    query_redirect = api.helpers.query_redirect(parsed_url)
+    with transaction.start_child(op="task", description="Get check website checks") as transaction:
+        parsed_url = await api.helpers.url_splitter(url)
+        hsts_check = await api.helpers.hsts_check(parsed_url.netloc, session, db, transaction)
+        blacklist_check = await api.helpers.blacklist_check(parsed_url.netloc, transaction)
+        webrisk_check = await api.helpers.webrisk_check(url, session, db, transaction)
+        cloudflare_check = await api.checkers.cloudflare.check(parsed_url.netloc, transaction)
+        if not api.helpers.validate_ip(parsed_url.netloc):
+            tld_parsed_url = tld.get_tld(url, as_object=True)
+            luma_check = await api.checkers.luma.check(tld_parsed_url.fld, session, transaction)
+            if not luma_check:
+                luma_check = await api.checkers.luma.check(parsed_url.netloc, session, transaction)
+        query_redirect = api.helpers.query_redirect(parsed_url)
 
     if text is not None:
         refresh_redirect = api.helpers.refresh_header_finder(text, parsed_url)
